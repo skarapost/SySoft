@@ -20,14 +20,11 @@ public class DbController
     
     public DbController() throws ClassNotFoundException, SQLException, URISyntaxException
     {
-        URI s = DbController.class.getProtectionDomain().getCodeSource().getLocation().toURI();
-        String dir = s.getPath();
-        dir = dir.replace("SySoft.jar", "");
-        File file = new File(dir + "Customers.sqlite");
+        File file = new File(System.getenv("HOME") + "/Records.sqlite");
         if (file.exists() && !file.isDirectory())
         {
             Class.forName("org.sqlite.JDBC");
-            conn = DriverManager.getConnection("JDBC:sqlite:" + dir + "Customers.sqlite");
+            conn = DriverManager.getConnection("JDBC:sqlite:" + file.getAbsolutePath());
             if (conn == null)
                 System.exit(1);
         }

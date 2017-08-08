@@ -143,7 +143,7 @@ public class SySoft extends Application
         root.setTop(menu);
         Scene scene = new Scene(root, 1350, 700);
         primaryStage.setScene(scene);
-        scene.getStylesheets().add(SySoft.class.getResource("SySoft.css").toExternalForm());
+        scene.getStylesheets().add(SySoft.class.getResource("/SySoft.css").toExternalForm());
         grid.getStyleClass().add("grid");
         primaryStage.show();
         startScreenMenuItem.setOnAction((ActionEvent e) ->
@@ -219,7 +219,7 @@ public class SySoft extends Application
                     scroll.getStyleClass().add("scroll");
                     gr.setMaxSize(scroll.getMaxWidth(), scroll.getMaxHeight());
                     gr.getStyleClass().add("gr");
-                    scene.getStylesheets().add(SySoft.class.getResource("SySoft.css").toExternalForm());
+                    scene.getStylesheets().add(SySoft.class.getResource("/SySoft.css").toExternalForm());
                     searchMenuItem.setSelected(false);
                     insertMenuItem.setSelected(true);
                     showAllMenuItem.setSelected(false);
