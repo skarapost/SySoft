@@ -20,7 +20,7 @@ public class DbController
     
     public DbController() throws ClassNotFoundException, SQLException, URISyntaxException
     {
-        File file = new File(System.getenv("HOME") + "/Records.sqlite");
+        File file = new File(System.getenv("HOME") + "/dbs/Records.sqlite");
         if (file.exists() && !file.isDirectory())
         {
             Class.forName("org.sqlite.JDBC");
