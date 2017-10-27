@@ -1,25 +1,18 @@
 package SySoft;
 
-import java.io.File;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
-import java.sql.SQLException;
-import java.util.ArrayList;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.TextField;
 
-public class DbController 
+import java.io.File;
+import java.sql.*;
+import java.util.ArrayList;
+
+class DbController
 {
     private Connection conn;
-    
-    public DbController() throws ClassNotFoundException, SQLException, URISyntaxException
-    {
+
+    DbController() throws ClassNotFoundException, SQLException {
         File file = new File(System.getenv("HOME") + "/dbs/Records.sqlite");
         if (file.exists() && !file.isDirectory())
         {
@@ -39,7 +32,8 @@ public class DbController
                 System.exit(1);
         }
     }
-    public int insertExecutor(ArrayList<TextField> t) throws SQLException
+
+    int insertExecutor(ArrayList<TextField> t) throws SQLException
     {
         try{
             PreparedStatement stm;
@@ -57,7 +51,8 @@ public class DbController
             }
         return 1;
     }
-    public ResultSet searchExecutor(String radio1, String radio2, String name, String surname) throws SQLException
+
+    ResultSet searchExecutor(String radio1, String radio2, String name, String surname) throws SQLException
     {
         PreparedStatement s;
         ResultSet r = null;
@@ -91,7 +86,8 @@ public class DbController
         }
         return r;
     }
-    public int updateExecutor(ArrayList<TextField> g, String id) throws SQLException
+
+    int updateExecutor(ArrayList<TextField> g, String id) throws SQLException
     {
         try{    
             PreparedStatement stm;
@@ -110,7 +106,8 @@ public class DbController
         }
         return 1;
     }
-    public void deleteExecutor(int f) throws SQLException
+
+    void deleteExecutor(int f) throws SQLException
     {
         try{
             PreparedStatement s;
@@ -125,7 +122,8 @@ public class DbController
                 conn.rollback();
         }
     }
-    public ResultSet showAll() throws SQLException
+
+    ResultSet showAll() throws SQLException
     {
         PreparedStatement s;
         ResultSet r = null;
@@ -140,7 +138,8 @@ public class DbController
         }
         return r;
     }
-    public void newAttribute(String at) throws SQLException
+
+    void newAttribute(String at) throws SQLException
     {
         try{
             PreparedStatement s;
@@ -154,7 +153,8 @@ public class DbController
                 conn.rollback();
         }
     }
-    public void deleteAttribute(int point) throws SQLException
+
+    void deleteAttribute(int point) throws SQLException
     {
         try{
             String s1 = buildSqlStatement4(point), s3 = buildSqlStatement5(point);
@@ -178,7 +178,8 @@ public class DbController
                 conn.rollback();
         }
     }
-    public String[] reColumnsNames() throws SQLException
+
+    String[] reColumnsNames() throws SQLException
     {
         String[] f = null;
         try{
@@ -201,126 +202,134 @@ public class DbController
         }
         return f;
     }
-    public String buildSqlStatement1() throws SQLException
+
+    private String buildSqlStatement1() throws SQLException
     {
-        String sql = "";
+        StringBuilder sql = new StringBuilder();
         String[] columnsNames = reColumnsNames();
         for(int i=0; i<columnsNames.length; i++)
         {
             if (i != columnsNames.length-1)
-                sql = sql + "\"" + columnsNames[i] + "\"" + ",";
+                sql.append("\"").append(columnsNames[i]).append("\"").append(",");
             else
-                sql = sql + "\"" + columnsNames[i] + "\"";
+                sql.append("\"").append(columnsNames[i]).append("\"");
         }
-        return sql;
+        return sql.toString();
     }
-    public String buildSqlStatement2(int point, String name) throws SQLException
+
+    private String buildSqlStatement2(int point, String name) throws SQLException
     {
-        String sql = "";
+        StringBuilder sql = new StringBuilder();
         String[] columnsNames = reColumnsNames();
         for(int i=0; i<columnsNames.length; i++)
         {
             if ((i != point)&&(i != columnsNames.length - 1))
-                sql = sql + "\"" + columnsNames[i] + "\"" + ",";
+                sql.append("\"").append(columnsNames[i]).append("\"").append(",");
             else if ((i == point)&&(i != columnsNames.length - 1))
-                sql = sql + "\"" + name + "\"" + ",";
+                sql.append("\"").append(name).append("\"").append(",");
             else if (i == point)
-                sql = sql + "\"" + name + "\"";
+                sql.append("\"").append(name).append("\"");
             else
-                sql = sql + "\"" + columnsNames[i] + "\"";
+                sql.append("\"").append(columnsNames[i]).append("\"");
         }
-        return sql;
+        return sql.toString();
     }
-    public String buildSqlStatement3(int point, String name) throws SQLException
+
+    private String buildSqlStatement3(int point, String name) throws SQLException
     {
-        String sql = "";
+        StringBuilder sql = new StringBuilder();
         String[] columnsNames = reColumnsNames();
         for(int i=0; i<columnsNames.length; i++)
         {
             if ((i == 0)&&(i != columnsNames.length - 1))
-                sql = sql + "\"Id\" INTEGER PRIMARY KEY NOT NULL" + ",";
+                sql.append("\"Id\" INTEGER PRIMARY KEY NOT NULL" + ",");
             else if (i == 0)
-                sql = sql + "\"Id\" INTEGER PRIMARY KEY NOT NULL";
+                sql.append("\"Id\" INTEGER PRIMARY KEY NOT NULL");
             else if ((i != point)&&(i != columnsNames.length - 1))
-                sql = sql + "\"" + columnsNames[i] + "\"" + " TEXT" + ",";
+                sql.append("\"").append(columnsNames[i]).append("\"").append(" TEXT").append(",");
             else if ((i == point)&&(i != columnsNames.length - 1))
-                sql = sql + "\"" + name + "\"" + " TEXT" + ",";
+                sql.append("\"").append(name).append("\"").append(" TEXT").append(",");
             else if (i == point)
-                sql = sql + "\"" + name + "\"" + " TEXT";
+                sql.append("\"").append(name).append("\"").append(" TEXT");
             else
-                sql = sql + "\"" + columnsNames[i] + "\"" + " TEXT";
+                sql.append("\"").append(columnsNames[i]).append("\"").append(" TEXT");
         }
-        return sql;
+        return sql.toString();
     }
-    public String buildSqlStatement4(int point) throws SQLException
+
+    private String buildSqlStatement4(int point) throws SQLException
     {
-        String sql = "";
+        StringBuilder sql = new StringBuilder();
         String[] columnsNames = reColumnsNames();
         for(int i=0; i<columnsNames.length; i++)
         {
             if ((i == 0)&&(columnsNames.length > 2))
-                sql = sql + "\"Id\" INTEGER PRIMARY KEY NOT NULL" + ",";
+                sql.append("\"Id\" INTEGER PRIMARY KEY NOT NULL" + ",");
             else if (i == 0)
-                sql = sql + "\"Id\" INTEGER PRIMARY KEY NOT NULL";
+                sql.append("\"Id\" INTEGER PRIMARY KEY NOT NULL");
             else if ((i != point)&&(i != columnsNames.length - 1)&&(i != columnsNames.length - 2))
-                sql = sql + "\"" + columnsNames[i] + "\"" +" TEXT" + ",";
+                sql.append("\"").append(columnsNames[i]).append("\"").append(" TEXT").append(",");
             else if ((i != point)&&(i == columnsNames.length - 2)&&(point == columnsNames.length - 1))
-                sql = sql + "\"" + columnsNames[i] + "\"" + " TEXT";
+                sql.append("\"").append(columnsNames[i]).append("\"").append(" TEXT");
             else if ((i != point)&&(i == columnsNames.length - 2)&&(point != columnsNames.length - 1))
-                sql = sql + "\"" + columnsNames[i] + "\"" + " TEXT" + ",";
+                sql.append("\"").append(columnsNames[i]).append("\"").append(" TEXT").append(",");
             else if ((i != point)&&(i == columnsNames.length - 1))
-                sql = sql + "\"" + columnsNames[i] + "\"" + " TEXT";
+                sql.append("\"").append(columnsNames[i]).append("\"").append(" TEXT");
         }
-        return sql;
+        return sql.toString();
     }
-    public String buildSqlStatement5(int point) throws SQLException
+
+    private String buildSqlStatement5(int point) throws SQLException
     {
-        String sql = "";
+        StringBuilder sql = new StringBuilder();
         String[] columnsNames = reColumnsNames();
         for(int i=0; i<columnsNames.length; i++)
         {
             if ((i == 0)&&(columnsNames.length > 2))
-                sql = sql + "\"" + "Id" + "\"" + ",";
+                sql.append("\"" + "Id" + "\"" + ",");
             else if (i == 0)
-                sql = sql + "\"" + "Id" + "\"";
+                sql.append("\"" + "Id" + "\"");
             else if ((i != point)&&(i != columnsNames.length - 1)&&(i != columnsNames.length - 2))
-                sql = sql + "\"" + columnsNames[i] + "\"" + ",";
+                sql.append("\"").append(columnsNames[i]).append("\"").append(",");
             else if ((i != point)&&(i == columnsNames.length - 2)&&(point == columnsNames.length - 1))
-                sql = sql + "\"" + columnsNames[i] + "\"";
+                sql.append("\"").append(columnsNames[i]).append("\"");
             else if ((i != point)&&(i == columnsNames.length - 2)&&(point != columnsNames.length - 1))
-                sql = sql + "\"" + columnsNames[i] + "\"" + ",";
+                sql.append("\"").append(columnsNames[i]).append("\"").append(",");
             else if ((i != point)&&(i == columnsNames.length - 1))
-                sql = sql + "\"" + columnsNames[i] + "\"";
+                sql.append("\"").append(columnsNames[i]).append("\"");
         }
-        return sql;
+        return sql.toString();
     }
-    public String buildSqlStatement6() throws SQLException
+
+    private String buildSqlStatement6() throws SQLException
     {
-        String sql = "";
+        StringBuilder sql = new StringBuilder();
         String[] columnsNames = reColumnsNames();
         for(int i=1; i<columnsNames.length; i++)
         {
             if (i != columnsNames.length-1)
-                sql = sql + "\"" + columnsNames[i] + "\"" + ",";
+                sql.append("\"").append(columnsNames[i]).append("\"").append(",");
             else
-                sql = sql + "\"" + columnsNames[i] + "\"";
+                sql.append("\"").append(columnsNames[i]).append("\"");
         }
-        return sql;
+        return sql.toString();
     }
-    public String buildSqlStatement7(ArrayList<TextField> t) throws SQLException
+
+    private String buildSqlStatement7(ArrayList<TextField> t) throws SQLException
     {
-        String sql = "";
+        StringBuilder sql = new StringBuilder();
         String[] columnsNames = reColumnsNames();
         for(int i=1; i<columnsNames.length; i++)
         {
             if (i != columnsNames.length-1)
-                sql = sql + "\"" + t.get(i-1).getText() + "\"" + ",";
+                sql.append("\"").append(t.get(i - 1).getText()).append("\"").append(",");
             else
-                sql = sql + "\"" + t.get(i-1).getText() + "\"";
+                sql.append("\"").append(t.get(i - 1).getText()).append("\"");
         }
-        return sql;
+        return sql.toString();
     }
-    public String buildSqlStatement8(ArrayList<TextField> g) throws SQLException
+
+    private String buildSqlStatement8(ArrayList<TextField> g) throws SQLException
     {
         boolean[] blank;
         blank = new boolean[g.size()];
@@ -329,18 +338,19 @@ public class DbController
             if(g.get(i).getText().equals(""))
                 blank[i] = true;
         }
-        String sql = "";
+        StringBuilder sql = new StringBuilder();
         String[] columnsNames = reColumnsNames();
         for(int i=1; i<columnsNames.length; i++)
         {
             if (!blank[i-1])
-                    sql = sql + "\"" + columnsNames[i] + "\"=" + "'" + g.get(i-1).getText() + "'" + ",";
+                sql.append("\"").append(columnsNames[i]).append("\"=").append("'").append(g.get(i - 1).getText()).append("'").append(",");
         }
-        StringBuilder sb = new StringBuilder(sql);
+        StringBuilder sb = new StringBuilder(sql.toString());
         sb.deleteCharAt(sql.length() - 1);
         return sb.toString();
     }
-    public void renameColumn(int point, String name) throws SQLException
+
+    void renameColumn(int point, String name) throws SQLException
     {
         try{
             String s1 = buildSqlStatement1(), s2 = buildSqlStatement2(point + 1, name), s3 = buildSqlStatement3(point + 1, name);

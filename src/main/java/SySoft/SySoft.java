@@ -6,56 +6,49 @@ import com.google.zxing.WriterException;
 import com.google.zxing.common.BitMatrix;
 import com.google.zxing.qrcode.QRCodeWriter;
 import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel;
-import java.awt.Color;
-import java.awt.Graphics2D;
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
-import java.net.URISyntaxException;
 import javafx.application.Application;
 import javafx.application.Platform;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.value.ObservableValue;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.control.Alert;
+import javafx.scene.control.*;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
-import javafx.scene.control.RadioMenuItem;
-import javafx.scene.control.SeparatorMenuItem;
+import javafx.scene.control.ScrollPane;
+import javafx.scene.control.TableColumn.CellDataFeatures;
 import javafx.scene.control.TextField;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
+import javafx.stage.FileChooser;
 import javafx.stage.Stage;
-import java.sql.*;
+import javafx.util.Callback;
+
+import javax.imageio.ImageIO;
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.value.ObservableValue;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
-import javafx.geometry.Insets;
-import javafx.geometry.Pos;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.ScrollPane;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableColumn.CellDataFeatures;
-import javafx.scene.control.TableView;
-import javafx.scene.control.TextInputDialog;
-import javafx.scene.control.ToggleGroup;
-import javafx.scene.control.Tooltip;
-import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.VBox;
-import javafx.stage.FileChooser;
-import javafx.util.Callback;
-import javax.imageio.ImageIO;
 
 public class SySoft extends Application 
 {
@@ -79,20 +72,19 @@ public class SySoft extends Application
     private Button refresh;
     private Button update;
     private Button qrcode;
-    private ObservableList<ObservableList> data;
     private TableView tableview;
     private String id;
     private MenuItem newAttribute;
     private MenuItem deleteAttribute;
-    private Menu menu1;
-    private Menu menu2;
     private ToggleGroup group1;
     private ToggleGroup group2;
-    private MenuBar menuBar1;
-    private MenuBar menuBar2;
     private String radio1;
     private String radio2;
-    
+
+    public static void main(String[] args) throws ClassNotFoundException, SQLException {
+        launch(args);
+    }
+
     @Override
     public void start(Stage primaryStage) throws ClassNotFoundException, SQLException, URISyntaxException
     {
@@ -108,6 +100,8 @@ public class SySoft extends Application
         RadioMenuItem insertMenuItem = new RadioMenuItem("New Record");
         RadioMenuItem searchMenuItem = new RadioMenuItem("Search");
         RadioMenuItem showAllMenuItem = new RadioMenuItem("Total of Records");
+        ToggleGroup group = new ToggleGroup();
+        group.getToggles().addAll(startScreenMenuItem, insertMenuItem, searchMenuItem, showAllMenuItem);
         startScreenMenuItem.setSelected(true);
         menuFile.getItems().addAll(startScreenMenuItem, new SeparatorMenuItem(), insertMenuItem, searchMenuItem, showAllMenuItem);
         Menu menuEdit = new Menu("More");
@@ -138,21 +132,18 @@ public class SySoft extends Application
         modify.setPrefSize(qrcode.getPrefWidth(), qrcode.getPrefHeight());
         delete.setPrefSize(qrcode.getPrefWidth(), qrcode.getPrefHeight());
         refresh.setPrefSize(qrcode.getPrefWidth(), qrcode.getPrefHeight());
-        labels = new ArrayList<Label>();
-        textfields = new ArrayList<TextField>();
+        labels = new ArrayList<>();
+        textfields = new ArrayList<>();
         root.setTop(menu);
         Scene scene = new Scene(root, 1350, 700);
         primaryStage.setScene(scene);
         scene.getStylesheets().add(SySoft.class.getResource("/SySoft.css").toExternalForm());
         grid.getStyleClass().add("grid");
         primaryStage.show();
-        startScreenMenuItem.setOnAction((ActionEvent e) ->
-        {
+
+        startScreenMenuItem.setOnAction((ActionEvent e) -> {
             cleanScreen();
             startScreenMenuItem.setSelected(true);
-            searchMenuItem.setSelected(false);
-            insertMenuItem.setSelected(false);
-            showAllMenuItem.setSelected(false);
             grid.setMaxSize(400, 380);
             grid.setMinSize(400, 380);
             grid.add(bt1, 0, 0);
@@ -163,15 +154,11 @@ public class SySoft extends Application
             root.setCenter(grid);
         });
         startScreenMenuItem.fire();
-        searchMenuItem.setOnAction((ActionEvent e) -> 
-        {
+        searchMenuItem.setOnAction((ActionEvent e) -> {
             cleanScreen();
+            searchMenuItem.setSelected(true);
             TextField boo;
             grid.setMaxSize(300, 280);
-            startScreenMenuItem.setSelected(false);
-            searchMenuItem.setSelected(true);
-            insertMenuItem.setSelected(false);
-            showAllMenuItem.setSelected(false);
             t = new Text("Record Search");
             t.setId("welcome");
             grid.add(t, 0, 0, 2, 1);
@@ -201,17 +188,19 @@ public class SySoft extends Application
             root.setCenter(grid);
             root.setLeft(null);
         });
-        insertMenuItem.setOnAction((ActionEvent e) -> 
-        {
+        insertMenuItem.setOnAction((ActionEvent e) -> {
             try {
                 if (c.reColumnsNames().length == 1)
                     startScreenMenuItem.fire();
                 else
                 {
                     cleanScreen();
+                    insertMenuItem.setSelected(true);
+                    newAttribute.setDisable(true);
+                    deleteAttribute.setDisable(true);
                     gr = new GridPane();
                     b = new VBox();
-                    int column = -1, row = -1;
+                    int column, row = -1;
                     b.setAlignment(Pos.CENTER);
                     Label foo;
                     TextField boo;
@@ -220,10 +209,6 @@ public class SySoft extends Application
                     gr.setMaxSize(scroll.getMaxWidth(), scroll.getMaxHeight());
                     gr.getStyleClass().add("gr");
                     scene.getStylesheets().add(SySoft.class.getResource("/SySoft.css").toExternalForm());
-                    searchMenuItem.setSelected(false);
-                    insertMenuItem.setSelected(true);
-                    showAllMenuItem.setSelected(false);
-                    startScreenMenuItem.setSelected(false);
                     t = new Text("Record Insertion");
                     t.setId("welcome");
                     b.getChildren().add(t);
@@ -256,7 +241,7 @@ public class SySoft extends Application
                         Logger.getLogger(SySoft.class.getName()).log(Level.SEVERE, null, ex);
                     }
                     try {
-                        column = 1; 
+                        column = 1;
                         row = 2;
                         for(int i=1;i<c.reColumnsNames().length; i++)
                         {
@@ -291,25 +276,21 @@ public class SySoft extends Application
                         tooltip.setText(sb.toString());
                         labels.get(i).setTooltip(tooltip);
                         int point = i;
-                        labels.get(i).setOnMouseClicked((MouseEvent t1) -> 
+                        labels.get(i).setOnMouseClicked((MouseEvent t1) ->
                         {
                             TextInputDialog dialog = new TextInputDialog();
                             dialog.setHeaderText(null);
                             dialog.setTitle("Rename field");
                             dialog.setContentText("New name of field: ");
                             Optional<String> result = dialog.showAndWait();
-                            if (result.isPresent())
-                            {
+                            result.ifPresent(s -> {
                                 try {
-                                    String a = result.get();
-                                    c.renameColumn(point, a);
+                                    c.renameColumn(point, s);
                                     insertMenuItem.fire();
-                                } 
-                                catch (SQLException ex) 
-                                {
-                                        Logger.getLogger(SySoft.class.getName()).log(Level.SEVERE, null, ex);
+                                } catch (SQLException ex) {
+                                    Logger.getLogger(SySoft.class.getName()).log(Level.SEVERE, null, ex);
                                 }
-                            }
+                            });
                         });
                     }
                     box.getChildren().add(insert);
@@ -325,43 +306,37 @@ public class SySoft extends Application
                 Logger.getLogger(SySoft.class.getName()).log(Level.SEVERE, null, ex);
             }
         });
-        showAllMenuItem.setOnAction((ActionEvent e) ->
-        {
+        showAllMenuItem.setOnAction((ActionEvent e) -> {
             cleanScreen();
-            searchMenuItem.setSelected(false);
-            insertMenuItem.setSelected(false);
             showAllMenuItem.setSelected(true);
-            startScreenMenuItem.setSelected(false);
             try {
                 showResults(c.showAll());
             } catch (SQLException ex) {
                 Logger.getLogger(SySoft.class.getName()).log(Level.SEVERE, null, ex);
             }
         });
-        newAttribute.setOnAction((ActionEvent e) ->
-        {
+        newAttribute.setOnAction((ActionEvent e) -> {
             TextInputDialog dialog = new TextInputDialog();
             dialog.setHeaderText(null);
             dialog.setTitle("New field");
             dialog.setContentText("Name of field: ");
             Optional<String> result = dialog.showAndWait();
-            if (result.isPresent())
+            result.ifPresent(s -> {
                 try {
-                    String a = result.get();
-                    c.newAttribute(a);
-            } catch (SQLException ex) {
-                Logger.getLogger(SySoft.class.getName()).log(Level.SEVERE, null, ex);
-            }
+                    c.newAttribute(s);
+                } catch (SQLException ex) {
+                    Logger.getLogger(SySoft.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            });
         });
-        deleteAttribute.setOnAction((ActionEvent e) -> 
-        {
+        deleteAttribute.setOnAction((ActionEvent e) -> {
             try {
                 if(c.reColumnsNames().length > 4)
                 {
                     int point = -1;
                     do
                     {
-                        TextInputDialog dialog = new TextInputDialog(); 
+                        TextInputDialog dialog = new TextInputDialog();
                         dialog.setHeaderText(null);
                         dialog.setTitle("Field deletion");
                         dialog.setContentText("Name of field: ");
@@ -414,20 +389,10 @@ public class SySoft extends Application
                 Logger.getLogger(SySoft.class.getName()).log(Level.SEVERE, null, ex);
             }
         });
-        bt1.setOnAction((ActionEvent e) -> 
-        {
-            insertMenuItem.fire();
-        });
-        bt2.setOnAction((ActionEvent e) -> 
-        {
-            searchMenuItem.fire();
-        });
-        bt3.setOnAction((ActionEvent e) ->
-        {
-            showAllMenuItem.fire();
-        });
-        insert.setOnAction((ActionEvent e)->
-        {
+        bt1.setOnAction((ActionEvent e) -> insertMenuItem.fire());
+        bt2.setOnAction((ActionEvent e) -> searchMenuItem.fire());
+        bt3.setOnAction((ActionEvent e) -> showAllMenuItem.fire());
+        insert.setOnAction((ActionEvent e) -> {
             int counter = 0;
             for(TextField r : textfields)
             {
@@ -444,8 +409,7 @@ public class SySoft extends Application
                 }
                 if (y == 1)
                 {
-                    for(int i=0; i<textfields.size(); i++)
-                        textfields.get(i).clear();
+                    for (TextField textfield : textfields) textfield.clear();
                     Alert alert = new Alert(AlertType.INFORMATION);
                     alert.setHeaderText(null);
                     alert.setTitle("Information");
@@ -471,8 +435,7 @@ public class SySoft extends Application
                 insertMenuItem.fire();
             }
         });
-        search.setOnAction((ActionEvent e)->
-        {
+        search.setOnAction((ActionEvent e) -> {
             try {
                 if (((textfields.get(0).getText() == null)&&
                         (null == textfields.get(1).getText()))||
@@ -507,16 +470,14 @@ public class SySoft extends Application
                 Logger.getLogger(SySoft.class.getName()).log(Level.SEVERE, null, ex);
             }
         });
-        about.setOnAction((ActionEvent e) -> 
-        {
+        about.setOnAction((ActionEvent e) -> {
             Alert alert = new Alert(AlertType.INFORMATION);
             alert.setTitle("Information");
             alert.setHeaderText(null);
             alert.setContentText("Creator: Karapostolakis Sotirios\nemail: skarapos@outlook.com\nYear: 2017");
             alert.showAndWait();
         });
-        modify.setOnAction((ActionEvent e) ->
-        {
+        modify.setOnAction((ActionEvent e) -> {
             ObservableList row = (ObservableList) tableview.getSelectionModel().getSelectedItem();
             newAttribute.setDisable(true);
             deleteAttribute.setDisable(true);
@@ -534,8 +495,7 @@ public class SySoft extends Application
             else
                 caution();
         });
-        delete.setOnAction((ActionEvent e) ->
-        {
+        delete.setOnAction((ActionEvent e) -> {
             ObservableList row = (ObservableList) tableview.getSelectionModel().getSelectedItem();
             if (row != null)
             {
@@ -555,20 +515,12 @@ public class SySoft extends Application
             else
                 caution();
         });
-        refresh.setOnAction((ActionEvent e) ->
-        {
-            showAllMenuItem.fire();
-        });
-        update.setOnAction((ActionEvent e) -> 
-        {
-            
-            newAttribute.setDisable(false);
-            deleteAttribute.setDisable(false);
+        refresh.setOnAction((ActionEvent e) -> showAllMenuItem.fire());
+        update.setOnAction((ActionEvent e) -> {
             try {
                 if (c.updateExecutor(textfields, id) == 1)
                 {
-                    for(int i=0; i<textfields.size(); i++)
-                        textfields.get(i).clear();
+                    for (TextField textfield : textfields) textfield.clear();
                     Alert alert = new Alert(AlertType.INFORMATION);
                     alert.setHeaderText(null);
                     alert.setTitle("Information");
@@ -589,30 +541,31 @@ public class SySoft extends Application
                 Logger.getLogger(SySoft.class.getName()).log(Level.SEVERE, null, ex);
             }
         });
-        qrcode.setOnAction((ActionEvent e) ->
-        {
+        qrcode.setOnAction((ActionEvent e) -> {
             ObservableList row = (ObservableList) tableview.getSelectionModel().getSelectedItem();
             if (row != null)
             {
                 String columns[] = null;
-                String myCodeText = "";
+                StringBuilder myCodeText = new StringBuilder();
                 try {
                    columns = c.reColumnsNames();
                 } catch (SQLException ex) {
                    Logger.getLogger(SySoft.class.getName()).log(Level.SEVERE, null, ex);
                 }
-                for(int i=1; i<row.size(); i++)
-                   myCodeText = myCodeText + columns[i] + ": " + (String) row.get(i) + "\n";
+                for (int i = 1; i < row.size(); i++) {
+                    assert columns != null;
+                    myCodeText.append(columns[i]).append(": ").append((String) row.get(i)).append("\n");
+                }
                 int size = 250;
                 String fileType = "png";
                 try
                 {
-                    Map<EncodeHintType, Object> hintMap = new EnumMap<EncodeHintType, Object>(EncodeHintType.class);
+                    Map<EncodeHintType, Object> hintMap = new EnumMap<>(EncodeHintType.class);
                     hintMap.put(EncodeHintType.CHARACTER_SET, "UTF-8");
                     hintMap.put(EncodeHintType.MARGIN, 1);
                     hintMap.put(EncodeHintType.ERROR_CORRECTION, ErrorCorrectionLevel.L);
                     QRCodeWriter qrCodeWriter = new QRCodeWriter();
-                    BitMatrix byteMatrix = qrCodeWriter.encode(myCodeText, BarcodeFormat.QR_CODE, size, size, hintMap);
+                    BitMatrix byteMatrix = qrCodeWriter.encode(myCodeText.toString(), BarcodeFormat.QR_CODE, size, size, hintMap);
                     int width = byteMatrix.getWidth();
                     BufferedImage image = new BufferedImage(width, width, BufferedImage.TYPE_INT_RGB);
                     image.createGraphics();
@@ -620,9 +573,9 @@ public class SySoft extends Application
                     graphics.setColor(Color.WHITE);
                     graphics.fillRect(0, 0, width, width);
                     graphics.setColor(Color.BLACK);
-                    for (int i = 0; i < width; i++) 
+                    for (int i = 0; i < width; i++)
                     {
-                        for (int j = 0; j < width; j++) 
+                        for (int j = 0; j < width; j++)
                         {
                             if (byteMatrix.get(i, j))
                                 graphics.fillRect(i, j, 1, 1);
@@ -645,18 +598,18 @@ public class SySoft extends Application
                 caution();
         });
     }
-    public void showResults(ResultSet u) throws SQLException
+
+    private void showResults(ResultSet u) throws SQLException
     {
         cleanScreen();
         tableview = new TableView();
         tableview.getStyleClass().add("tableview");
         tableview.setMaxSize(900, 600);
-        data = FXCollections.observableArrayList();
+        ObservableList<ObservableList> data = FXCollections.observableArrayList();
         for(int i = 1 ; i < u.getMetaData().getColumnCount(); i++)
         {
-	    final int j = i;               
-	    TableColumn col = new TableColumn(u.getMetaData().getColumnName(i+1));
-	    col.setCellValueFactory(new CallbackImpl(j));
+            TableColumn col = new TableColumn(u.getMetaData().getColumnName(i + 1));
+            col.setCellValueFactory(new CallbackImpl(i));
             tableview.getColumns().addAll(col);
 	}
         while(u.next())
@@ -679,7 +632,8 @@ public class SySoft extends Application
         VBox.setMargin(delete, new Insets(0, 0, 15, 0));
         root.setLeft(box);
     }
-    public void caution()
+
+    private void caution()
     {
         Alert alert = new Alert(AlertType.WARNING);
         alert.setTitle("Caution");
@@ -687,7 +641,8 @@ public class SySoft extends Application
         alert.setContentText("Please select a row");
         alert.showAndWait();
     }
-    public void cleanScreen()
+
+    private void cleanScreen()
     {
         labels.clear();
         textfields.clear();
@@ -698,50 +653,46 @@ public class SySoft extends Application
         newAttribute.setDisable(false);
         deleteAttribute.setDisable(false);
     }
-    public MenuBar reSearch1() throws SQLException
+
+    private MenuBar reSearch1() throws SQLException
     {
-        menuBar1 = new MenuBar();
-        menu1 = new Menu("Search Options");
+        MenuBar menuBar1 = new MenuBar();
+        Menu menu1 = new Menu("Search Options");
         group1 = new ToggleGroup();
         for(int i=1; i<c.reColumnsNames().length; i++)
         {
             RadioMenuItem radio = new RadioMenuItem(c.reColumnsNames()[i]);
             radio.setOnAction((ActionEvent e)->
-            {
-                radio1 = radio.getText();
-            });
+                    radio1 = radio.getText());
             menu1.getItems().add(radio);
             radio.setToggleGroup(group1);
         }
         menuBar1.getMenus().add(menu1);
         return menuBar1;
     }
-    public MenuBar reSearch2() throws SQLException
+
+    private MenuBar reSearch2() throws SQLException
     {
-        menuBar2 = new MenuBar();
-        menu2 = new Menu("Search Options");
+        MenuBar menuBar2 = new MenuBar();
+        Menu menu2 = new Menu("Search Options");
         group2 = new ToggleGroup();
         for(int i=1; i<c.reColumnsNames().length; i++)
         {
             RadioMenuItem radio = new RadioMenuItem(c.reColumnsNames()[i]);
             radio.setOnAction((ActionEvent e)->
-            {
-                radio2 = radio.getText();
-            });
+                    radio2 = radio.getText());
             menu2.getItems().add(radio);
             radio.setToggleGroup(group2);
         }
         menuBar2.getMenus().add(menu2);
         return menuBar2;
     }
-    public static void main(String[] args) throws ClassNotFoundException, SQLException 
-    {
-        launch(args);
-    }
-    private static class CallbackImpl implements Callback<CellDataFeatures<ObservableList, String>, ObservableValue<String>> 
+
+    private static class CallbackImpl implements Callback<CellDataFeatures<ObservableList, String>, ObservableValue<String>>
     {
         private final int j;
-        public CallbackImpl(int j) 
+
+        CallbackImpl(int j)
         {
             this.j = j;
         }

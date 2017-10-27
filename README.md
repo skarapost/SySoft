@@ -12,7 +12,7 @@ SySoft is a convenient interface for storing every kind of information. The info
 
 # ***Functions***
 
-The programm is developed in Java. Except for the jar file, there is also a sqlite file that is for the database. Every kind of information is stored in this file. The sqlite database contains 4 fields that cannot be deleted. A primary key(ID) field which is not visible, and other 3 fields. The functions of the program are:
+The program is developed in Java. Except for the jar file, there is also a sqlite file that is for the database. Every kind of information is stored in this file. The sqlite database contains 4 fields that cannot be deleted. A primary key(ID) field which is not visible, and other 3 fields. The functions of the program are:
 1) Creation of a new field.
 2) Deletion of a field.
 3) Renaming of a field.
