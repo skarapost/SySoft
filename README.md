@@ -1,23 +1,24 @@
 # SySoft
 
-# ***Generic Description***
+## Generic Description
 
-SySoft is a convenient interface for storing every kind of information. The information is stored in a table of an Sqlite Database. You can create, rename or delete fields. Search function is supported, as well.
+SySoft is a convenient interface for storing every kind of information. The information is stored in a Sqlite provided database. The user can create, rename or delete fields. Search function is supported, as well.
 
-# ***Installation/Execution***
+## Installation/Execution
 
 1) Build the project using maven.
-2) Search out sysoft.jar file from the target directory.
-3) Execute it puting "Records.sqlite" file from the resources directory in ```~/dbs``` directory.
+2) Search out ```sysoft.jar``` file in the ```target``` directory.
+3) Execute it adding ```Records.sqlite``` file from the ```resources``` directory in ```~/dbs``` directory.
 
-# ***Functions***
+## Functions
 
-The program is developed in Java. Except for the jar file, there is also a sqlite file that is for the database. Every kind of information is stored in this file. The sqlite database contains 4 fields that cannot be deleted. An id field which is not visible, and other 3 fields. The functions of the program are:
-1) Creation of a new field.
-2) Deletion of a field.
-3) Renaming of a field.
-4) Extraction in a qr code the summary of a record.
-5) Update of a record.
-6) Deletion of a record.
-7) Creation of a record.
-8) Search according to 2 different fields.
+The program is developed using Java 8. SySoft can store every kind of information. In the resources directory there is a database with an already constructed database with a table, as well. Sqlite database contains 4 fields that cannot be deleted. An id field which is not visible, and other 3 fields. On top of this, the most significant operations are:
+1) Create a new field.
+2) Delete a field.
+3) Rename a field.
+4) Extraction in QR code the summary of a record.
+5) Update a record.
+6) Delete a record.
+7) Create a record.
+8) Search using 2 different selected fields.
+9) Show all the records.
