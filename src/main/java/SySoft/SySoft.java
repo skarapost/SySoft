@@ -611,16 +611,18 @@ public class SySoft extends Application
             TableColumn col = new TableColumn(u.getMetaData().getColumnName(i + 1));
             col.setCellValueFactory(new CallbackImpl(i));
             tableview.getColumns().addAll(col);
-	}
+	    }
         while(u.next())
         {
             ObservableList<String> row = FXCollections.observableArrayList();
-	    for(int i=1 ; i <= u.getMetaData().getColumnCount(); i++)
+	        for(int i=1 ; i <= u.getMetaData().getColumnCount(); i++)
                 row.add(u.getString(i));
-	    data.add(row);
+	        data.add(row);
         }
         tableview.setItems(data);
         root.setCenter(tableview);
+        if (u != null)
+            u.close();
         box.getChildren().addAll(modify, delete, qrcode);
         box.setMaxSize(300, 140);
         BorderPane.setAlignment(box, Pos.CENTER);

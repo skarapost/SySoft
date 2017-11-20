@@ -8,7 +8,7 @@ SySoft is a convenient interface for storing every kind of information. The info
 
 1) Build the project using maven.
 2) Search out ```sysoft.jar``` file in the ```target``` directory.
-3) Execute it adding ```Records.sqlite``` file from the ```resources``` directory in ```~/dbs``` directory.
+3) Execute it keeping ```Records.sqlite``` file from the ```resources``` directory in the same path as ```sysoft.jar```.
 
 ## Functions
 
@@ -16,7 +16,7 @@ The program is developed using Java 8. SySoft can store every kind of informatio
 1) Create a new field.
 2) Delete a field.
 3) Rename a field.
-4) Extraction in QR code the summary of a record.
+4) Extraction of a record to QR code.
 5) Update a record.
 6) Delete a record.
 7) Create a record.

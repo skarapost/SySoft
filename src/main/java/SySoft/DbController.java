@@ -5,24 +5,29 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.TextField;
 
 import java.io.File;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.sql.*;
 import java.util.ArrayList;
+
 
 class DbController
 {
     private Connection conn;
 
-    DbController() throws ClassNotFoundException, SQLException {
-        File file = new File(System.getenv("HOME") + "/dbs/Records.sqlite");
-        if (file.exists() && !file.isDirectory())
-        {
+    DbController() throws ClassNotFoundException, SQLException, URISyntaxException {
+        URI s = DbController.class.getProtectionDomain().getCodeSource().getLocation().toURI();
+        String dir = s.getPath();
+        dir = dir.replace("sysoft.jar", "");
+        System.out.println(dir);
+        File file = new File(dir + "Records.sqlite");
+        if (file.exists() && !file.isDirectory()) {
             Class.forName("org.sqlite.JDBC");
             conn = DriverManager.getConnection("JDBC:sqlite:" + file.getAbsolutePath());
             if (conn == null)
                 System.exit(1);
         }
-        else
-        {
+        else {
             Alert alert = new Alert(Alert.AlertType.WARNING);
             alert.setTitle("Caution");
             alert.setHeaderText(null);
@@ -33,30 +38,33 @@ class DbController
         }
     }
 
-    int insertExecutor(ArrayList<TextField> t) throws SQLException
-    {
-        try{
-            PreparedStatement stm;
+    int insertExecutor(ArrayList<TextField> t) throws SQLException {
+        PreparedStatement stm = null;
+        try {
             conn.setAutoCommit(false); 
             stm = conn.prepareStatement("INSERT INTO Customer (" + buildSqlStatement6() + ") VALUES (" + buildSqlStatement7(t) + ")");
             stm.executeUpdate();    
             conn.commit();
             stm.close();
-            }catch (SQLException e){
-                if (conn != null)
-                {
-                    conn.rollback();
-                    return 0;
-                }
+        } catch (SQLException e){
+            if (conn != null) {
+                conn.rollback();
+                return 0;
             }
+        }
+        finally {
+            if (stm != null)
+                stm.close();
+            conn.setAutoCommit(true);
+        }
         return 1;
     }
 
     ResultSet searchExecutor(String radio1, String radio2, String name, String surname) throws SQLException
     {
-        PreparedStatement s;
+        PreparedStatement s = null;
         ResultSet r = null;
-        try{
+        try {
             conn.setAutoCommit(false);
             if ((((name != null)&&(surname != null)&&(!(name.isEmpty()))&&(!(surname.isEmpty())))))
             {
@@ -84,48 +92,58 @@ class DbController
             if (conn != null)
                 conn.rollback();
         }
+        finally {
+            conn.setAutoCommit(true);
+        }
         return r;
     }
 
     int updateExecutor(ArrayList<TextField> g, String id) throws SQLException
     {
-        try{    
-            PreparedStatement stm;
+        PreparedStatement stm = null;
+        try {
             conn.setAutoCommit(false);
             stm = conn.prepareStatement("UPDATE Customer SET " + buildSqlStatement8(g) + " WHERE Id = ?");
             stm.setObject(1, id);
             stm.executeUpdate();    
             conn.commit();
-            stm.close();
-        }catch (SQLException e){
-            if (conn != null)
-            {
+        } catch (SQLException e){
+            if (conn != null) {
                 conn.rollback();
                 return 0;
             }
+        }
+        finally {
+            if (stm!= null)
+                stm.close();
+            conn.setAutoCommit(true);
         }
         return 1;
     }
 
     void deleteExecutor(int f) throws SQLException
     {
-        try{
-            PreparedStatement s;
+        PreparedStatement s = null;
+        try {
             conn.setAutoCommit(false);
             s = conn.prepareStatement("DELETE from Customer WHERE Id = ?");
             s.setObject(1, f);
             s.executeUpdate();
             conn.commit();
-            s.close();
-        }catch (SQLException e){
+        } catch (SQLException e){
             if (conn != null)
                 conn.rollback();
+        }
+        finally {
+            if (s != null)
+                s.close();
+            conn.setAutoCommit(true);
         }
     }
 
     ResultSet showAll() throws SQLException
     {
-        PreparedStatement s;
+        PreparedStatement s = null;
         ResultSet r = null;
         try{
             conn.setAutoCommit(false);
@@ -136,13 +154,16 @@ class DbController
             if (conn != null)
                 conn.rollback();
         }
+        finally {
+            conn.setAutoCommit(true);
+        }
         return r;
     }
 
     void newAttribute(String at) throws SQLException
     {
-        try{
-            PreparedStatement s;
+        PreparedStatement s = null;
+        try {
             conn.setAutoCommit(false);
             s = conn.prepareStatement("ALTER TABLE Customer ADD COLUMN \"" + at + "\" TEXT DEFAULT 00000");
             s.execute();
@@ -152,14 +173,19 @@ class DbController
             if (conn != null)
                 conn.rollback();
         }
+        finally {
+            if (s != null)
+                s.close();
+            conn.setAutoCommit(true);
+        }
     }
 
     void deleteAttribute(int point) throws SQLException
     {
-        try{
+        PreparedStatement st1 = null, st2 = null, st3 = null, st4 = null;
+        try {
             String s1 = buildSqlStatement4(point), s3 = buildSqlStatement5(point);
             conn.setAutoCommit(false);
-            PreparedStatement st1, st2, st3, st4;
             st1 = conn.prepareStatement("CREATE TABLE CustomerTemp (" + s1 + ")");
             st1.execute();
             st2 = conn.prepareStatement("INSERT INTO CustomerTemp SELECT " + s3 + " FROM Customer");
@@ -169,36 +195,46 @@ class DbController
             st4 = conn.prepareStatement("ALTER TABLE CustomerTemp RENAME TO Customer");
             st4.execute();
             conn.commit();
-            st1.close();
-            st2.close();
-            st3.close();
-            st4.close();
-        }catch (SQLException e){
+        } catch (SQLException e) {
             if (conn != null)
                 conn.rollback();
+        }
+        finally {
+            if (st1 != null)
+                st1.close();
+            if (st2 != null)
+                st2.close();
+            if (st3 != null)
+                st3.close();
+            if (st4 != null)
+                st4.close();
+            conn.setAutoCommit(true);
         }
     }
 
     String[] reColumnsNames() throws SQLException
     {
         String[] f = null;
-        try{
-            PreparedStatement s;
-            ResultSet r;
+        PreparedStatement s = null;
+        ResultSet r = null;
+        try {
             conn.setAutoCommit(false);
             s = conn.prepareStatement("SELECT * FROM Customer");
             r = s.executeQuery();
             conn.commit();
             ResultSetMetaData rsmd = r.getMetaData();
             f = new String[rsmd.getColumnCount()];
-            for (int i=0; i< rsmd.getColumnCount(); i++)
-            {
+            for (int i=0; i< rsmd.getColumnCount(); i++) {
                 f[i] = rsmd.getColumnName(i+1);
             }
-            s.close();
-        }catch (SQLException e){
+        } catch (SQLException e) {
             if (conn != null)
                 conn.rollback();
+        }
+        finally {
+            if (s != null)
+                s.close();
+            conn.setAutoCommit(true);
         }
         return f;
     }
@@ -352,10 +388,10 @@ class DbController
 
     void renameColumn(int point, String name) throws SQLException
     {
-        try{
+        PreparedStatement st1 = null, st2 = null, st3 = null, st4 = null;
+        try {
             String s1 = buildSqlStatement1(), s2 = buildSqlStatement2(point + 1, name), s3 = buildSqlStatement3(point + 1, name);
             conn.setAutoCommit(false);
-            PreparedStatement st1, st2, st3, st4;
             st1 = conn.prepareStatement("ALTER TABLE Customer RENAME TO CustomerTemp");
             st1.execute();
             st2 = conn.prepareStatement("CREATE TABLE Customer(" + s3 + ")");
@@ -365,13 +401,20 @@ class DbController
             st4 = conn.prepareStatement("DROP TABLE CustomerTemp");
             st4.execute();
             conn.commit();
-            st1.close();
-            st2.close();
-            st3.close();
-            st4.close();
-        }catch (SQLException e){
+        } catch (SQLException e) {
             if (conn != null)
                 conn.rollback();
+        }
+        finally {
+            if (st1 != null)
+                st1.close();
+            if (st2 != null)
+                st2.close();
+            if (st3 != null)
+                st3.close();
+            if (st4 != null)
+                st4.close();
+            conn.setAutoCommit(true);
         }
     }
 }
