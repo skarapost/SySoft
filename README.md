@@ -12,7 +12,7 @@ SySoft is a convenient interface for storing every kind of information. The info
 
 ## Functions
 
-The program is developed using Java 8. SySoft can store every kind of information. In the resources directory there is a database with an already constructed database with a table, as well. Sqlite database contains 4 fields that cannot be deleted. An id field which is not visible, and other 3 fields. On top of this, the most significant operations are:
+SySoft can store every kind of information. In the resources directory there is a database with an already constructed database with a table, as well. Sqlite database contains 4 fields that cannot be deleted. An id field which is not visible, and other 3 fields. On top of this, the most significant operations are:
 1) Create a new field.
 2) Delete a field.
 3) Rename a field.
