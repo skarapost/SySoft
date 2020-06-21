@@ -17,7 +17,8 @@ class DbController {
 
     DbController() throws ClassNotFoundException, SQLException, URISyntaxException {
         URI s = DbController.class.getProtectionDomain().getCodeSource().getLocation().toURI();
-        String dir = s.getPath().replace("sysoft.jar", "");
+        String dir = s.getPath();
+        dir = dir.replace("sysoft.jar", "");
         File file = new File(dir + "Records.sqlite");
         if (file.exists() && !file.isDirectory()) {
             Class.forName("org.sqlite.JDBC");
