@@ -50,8 +50,7 @@ import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class SySoft extends Application 
-{
+public class SySoft extends Application {
     private Text t;
     private ArrayList<Label> labels;
     private ArrayList<TextField> textfields;
@@ -81,14 +80,13 @@ public class SySoft extends Application
     private String radio1;
     private String radio2;
 
-    public static void main(String[] args) throws ClassNotFoundException, SQLException {
+    public static void main(String[] args) {
         launch(args);
     }
 
     @Override
-    public void start(Stage primaryStage) throws ClassNotFoundException, SQLException, URISyntaxException
-    {
-        primaryStage.setTitle("SySoft 1.0.0");
+    public void start(Stage primaryStage) throws ClassNotFoundException, SQLException, URISyntaxException {
+        primaryStage.setTitle("SySoft");
         c = new DbController();
         root = new BorderPane();
         grid = new GridPane();
@@ -192,8 +190,7 @@ public class SySoft extends Application
             try {
                 if (c.reColumnsNames().length == 1)
                     startScreenMenuItem.fire();
-                else
-                {
+                else {
                     cleanScreen();
                     insertMenuItem.setSelected(true);
                     newAttribute.setDisable(true);
@@ -209,29 +206,23 @@ public class SySoft extends Application
                     gr.setMaxSize(scroll.getMaxWidth(), scroll.getMaxHeight());
                     gr.getStyleClass().add("gr");
                     scene.getStylesheets().add(SySoft.class.getResource("/SySoft.css").toExternalForm());
-                    t = new Text("Record Insertion");
+                    t = new Text("Insertion of Record");
                     t.setId("welcome");
                     b.getChildren().add(t);
                     gr.add(b, 0, 0, 10, 1);
                     try {
                         column = 0;
                         row = 2;
-                        for(int i=1;i<c.reColumnsNames().length;i++)
-                        {
+                        for (int i = 1; i < c.reColumnsNames().length; i++) {
                             foo = new Label(c.reColumnsNames()[i] + ":");
                             labels.add(foo);
-                            if (column == 0)
-                            {
+                            if (column == 0) {
                                 gr.add(foo, column, row);
                                 column = 2;
-                            }
-                            else if(column == 2)
-                            {
+                            } else if (column == 2) {
                                 gr.add(foo, column, row);
                                 column = 4;
-                            }
-                            else
-                            {
+                            } else {
                                 gr.add(foo, column, row);
                                 column = 0;
                                 row++;
@@ -243,23 +234,17 @@ public class SySoft extends Application
                     try {
                         column = 1;
                         row = 2;
-                        for(int i=1;i<c.reColumnsNames().length; i++)
-                        {
+                        for (int i = 1; i < c.reColumnsNames().length; i++) {
                             boo = new TextField();
                             boo.setMaxWidth(100);
                             textfields.add(boo);
-                            if (column == 1)
-                            {
+                            if (column == 1) {
                                 gr.add(boo, column, row);
                                 column = 3;
-                            }
-                            else if(column == 3)
-                            {
+                            } else if (column == 3) {
                                 gr.add(boo, column, row);
                                 column = 5;
-                            }
-                            else
-                            {
+                            } else {
                                 gr.add(boo, column, row);
                                 column = 1;
                                 row++;
@@ -268,8 +253,7 @@ public class SySoft extends Application
                     } catch (SQLException ex) {
                         Logger.getLogger(SySoft.class.getName()).log(Level.SEVERE, null, ex);
                     }
-                    for(int i=0; i<labels.size(); i++)
-                    {
+                    for (int i = 0; i < labels.size(); i++) {
                         StringBuilder sb = new StringBuilder(labels.get(i).getText());
                         sb.deleteCharAt(labels.get(i).getText().length() - 1);
                         Tooltip tooltip = new Tooltip();
@@ -297,7 +281,7 @@ public class SySoft extends Application
                     insert.setDefaultButton(true);
                     box.setAlignment(Pos.BOTTOM_RIGHT);
                     box.setStyle(null);
-                    gr.add(box, 5, row+1);
+                    gr.add(box, 5, row + 1);
                     scroll.setContent(null);
                     scroll.setContent(gr);
                     root.setCenter(scroll);
@@ -331,54 +315,44 @@ public class SySoft extends Application
         });
         deleteAttribute.setOnAction((ActionEvent e) -> {
             try {
-                if(c.reColumnsNames().length > 4)
-                {
+                if (c.reColumnsNames().length > 4) {
                     int point = -1;
-                    do
-                    {
+                    do {
                         TextInputDialog dialog = new TextInputDialog();
                         dialog.setHeaderText(null);
                         dialog.setTitle("Field deletion");
                         dialog.setContentText("Name of field: ");
                         Optional<String> result = dialog.showAndWait();
-                        if (result.isPresent())
-                        {
-                            try
-                            {
-                                for(int i=0; i<c.reColumnsNames().length; i++)
-                                {
+                        if (result.isPresent()) {
+                            try {
+                                for (int i = 0; i < c.reColumnsNames().length; i++) {
                                     String name = c.reColumnsNames()[i];
                                     String name1 = result.get();
-                                    if (name1.equals(name))
-                                    {
+                                    if (name1.equals(name)) {
                                         point = i;
                                     }
                                 }
                             } catch (SQLException ex) {
                                 Logger.getLogger(SySoft.class.getName()).log(Level.SEVERE, null, ex);
                             }
-                        }
-                        else
+                        } else
                             break;
                         dialog.close();
-                        if (point == -1)
-                        {
+                        if (point == -1) {
                             Alert alert = new Alert(AlertType.WARNING);
                             alert.setTitle("Caution");
                             alert.setHeaderText(null);
                             alert.setContentText("There is no field with this name");
                             alert.showAndWait();
                         }
-                    }while(point == -1);
+                    } while (point == -1);
                     try {
                         if (point != -1)
                             c.deleteAttribute(point);
                     } catch (SQLException ex) {
                         Logger.getLogger(SySoft.class.getName()).log(Level.SEVERE, null, ex);
                     }
-                }
-                else
-                {
+                } else {
                     Alert alert = new Alert(AlertType.WARNING);
                     alert.setTitle("Caution");
                     alert.setHeaderText(null);
@@ -394,39 +368,32 @@ public class SySoft extends Application
         bt3.setOnAction((ActionEvent e) -> showAllMenuItem.fire());
         insert.setOnAction((ActionEvent e) -> {
             int counter = 0;
-            for(TextField r : textfields)
-            {
+            for (TextField r : textfields) {
                 if (r.getText().equals(""))
                     counter++;
             }
-            if (counter != textfields.size())
-            {
+            if (counter != textfields.size()) {
                 int y = -1;
                 try {
                     y = c.insertExecutor(textfields);
                 } catch (SQLException ex) {
                     Logger.getLogger(SySoft.class.getName()).log(Level.SEVERE, null, ex);
                 }
-                if (y == 1)
-                {
+                if (y == 1) {
                     for (TextField textfield : textfields) textfield.clear();
                     Alert alert = new Alert(AlertType.INFORMATION);
                     alert.setHeaderText(null);
                     alert.setTitle("Information");
                     alert.setContentText("The insertion was successful");
                     alert.showAndWait();
-                }
-                else
-                {
+                } else {
                     Alert alert = new Alert(AlertType.INFORMATION);
                     alert.setHeaderText(null);
                     alert.setTitle("Information");
                     alert.setContentText("The insertion was unsuccessful");
                     alert.showAndWait();
                 }
-            }
-            else
-            {
+            } else {
                 Alert alert = new Alert(AlertType.INFORMATION);
                 alert.setHeaderText(null);
                 alert.setTitle("Information");
@@ -437,31 +404,26 @@ public class SySoft extends Application
         });
         search.setOnAction((ActionEvent e) -> {
             try {
-                if (((textfields.get(0).getText() == null)&&
-                        (null == textfields.get(1).getText()))||
+                if (((textfields.get(0).getText() == null) &&
+                        (null == textfields.get(1).getText())) ||
                         ((textfields.get(0).getText().isEmpty())
-                        &&(null == textfields.get(1).getText()))||
+                                && (null == textfields.get(1).getText())) ||
                         ((null == textfields.get(0).getText())
-                        &&(textfields.get(1).getText().isEmpty()))||
+                                && (textfields.get(1).getText().isEmpty())) ||
                         ((textfields.get(0).getText().isEmpty()))
-                        &&(textfields.get(1).getText().isEmpty()))
-                {
+                                && (textfields.get(1).getText().isEmpty())) {
                     Alert alert = new Alert(AlertType.INFORMATION);
                     alert.setTitle("Caution");
                     alert.setHeaderText(null);
                     alert.setContentText("Please fill at least one field");
                     alert.showAndWait();
-                }
-                else if((group1.getSelectedToggle() == null)||(group2.getSelectedToggle() == null))
-                {
+                } else if ((group1.getSelectedToggle() == null) || (group2.getSelectedToggle() == null)) {
                     Alert alert = new Alert(AlertType.INFORMATION);
                     alert.setTitle("Caution");
                     alert.setHeaderText(null);
                     alert.setContentText("Please check 2 search options");
                     alert.showAndWait();
-                }
-                else
-                {
+                } else {
                     showResults(c.searchExecutor(radio1, radio2, textfields.get(0).getText(), textfields.get(1).getText()));
                     box.getChildren().remove(refresh);
                     VBox.setMargin(qrcode, new Insets(0, 0, 0, 0));
@@ -474,31 +436,28 @@ public class SySoft extends Application
             Alert alert = new Alert(AlertType.INFORMATION);
             alert.setTitle("Information");
             alert.setHeaderText(null);
-            alert.setContentText("Creator: Karapostolakis Sotirios\nemail: skarapos@outlook.com\nYear: 2017");
+            alert.setContentText("Creator: Karapostolakis Sotirios\nemail: skarapos@outlook.com\n");
             alert.showAndWait();
         });
         modify.setOnAction((ActionEvent e) -> {
             ObservableList row = (ObservableList) tableview.getSelectionModel().getSelectedItem();
             newAttribute.setDisable(true);
             deleteAttribute.setDisable(true);
-            if (row != null)
-            {
+            if (row != null) {
                 insertMenuItem.fire();
-                for(int i=0; i<textfields.size(); i++)
-                    textfields.get(i).setText((String) row.get(i+1));
+                for (int i = 0; i < textfields.size(); i++)
+                    textfields.get(i).setText((String) row.get(i + 1));
                 t.setText("Update Record");
                 box.getChildren().remove(insert);
                 box.getChildren().add(update);
                 update.setDefaultButton(true);
                 id = (String) row.get(0);
-            }
-            else
+            } else
                 caution();
         });
         delete.setOnAction((ActionEvent e) -> {
             ObservableList row = (ObservableList) tableview.getSelectionModel().getSelectedItem();
-            if (row != null)
-            {
+            if (row != null) {
                 try {
                     Alert alert = new Alert(AlertType.INFORMATION);
                     alert.setTitle("Deletion Confirmation");
@@ -511,15 +470,13 @@ public class SySoft extends Application
                 } catch (SQLException ex) {
                     Logger.getLogger(SySoft.class.getName()).log(Level.SEVERE, null, ex);
                 }
-            }
-            else
+            } else
                 caution();
         });
         refresh.setOnAction((ActionEvent e) -> showAllMenuItem.fire());
         update.setOnAction((ActionEvent e) -> {
             try {
-                if (c.updateExecutor(textfields, id) == 1)
-                {
+                if (c.updateExecutor(textfields, id) == 1) {
                     for (TextField textfield : textfields) textfield.clear();
                     Alert alert = new Alert(AlertType.INFORMATION);
                     alert.setHeaderText(null);
@@ -527,9 +484,7 @@ public class SySoft extends Application
                     alert.setContentText("The update was successful");
                     alert.showAndWait();
                     searchMenuItem.fire();
-                }
-                else
-                {
+                } else {
                     Alert alert = new Alert(AlertType.INFORMATION);
                     alert.setHeaderText(null);
                     alert.setTitle("Information");
@@ -543,14 +498,13 @@ public class SySoft extends Application
         });
         qrcode.setOnAction((ActionEvent e) -> {
             ObservableList row = (ObservableList) tableview.getSelectionModel().getSelectedItem();
-            if (row != null)
-            {
+            if (row != null) {
                 String columns[] = null;
                 StringBuilder myCodeText = new StringBuilder();
                 try {
-                   columns = c.reColumnsNames();
+                    columns = c.reColumnsNames();
                 } catch (SQLException ex) {
-                   Logger.getLogger(SySoft.class.getName()).log(Level.SEVERE, null, ex);
+                    Logger.getLogger(SySoft.class.getName()).log(Level.SEVERE, null, ex);
                 }
                 for (int i = 1; i < row.size(); i++) {
                     assert columns != null;
@@ -558,8 +512,7 @@ public class SySoft extends Application
                 }
                 int size = 250;
                 String fileType = "png";
-                try
-                {
+                try {
                     Map<EncodeHintType, Object> hintMap = new EnumMap<>(EncodeHintType.class);
                     hintMap.put(EncodeHintType.CHARACTER_SET, "UTF-8");
                     hintMap.put(EncodeHintType.MARGIN, 1);
@@ -573,51 +526,43 @@ public class SySoft extends Application
                     graphics.setColor(Color.WHITE);
                     graphics.fillRect(0, 0, width, width);
                     graphics.setColor(Color.BLACK);
-                    for (int i = 0; i < width; i++)
-                    {
-                        for (int j = 0; j < width; j++)
-                        {
+                    for (int i = 0; i < width; i++) {
+                        for (int j = 0; j < width; j++) {
                             if (byteMatrix.get(i, j))
                                 graphics.fillRect(i, j, 1, 1);
                         }
                     }
                     FileChooser fileChooser = new FileChooser();
-                    FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("IMAGE file (*.png)","*.png");
+                    FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("IMAGE file (*.png)", "*.png");
                     fileChooser.setInitialFileName((String) row.get(0));
                     fileChooser.getExtensionFilters().add(extFilter);
                     File myFile = fileChooser.showSaveDialog(primaryStage);
                     if (myFile != null)
                         ImageIO.write(image, fileType, myFile);
-                }
-                catch (WriterException | IOException y)
-                {
+                } catch (WriterException | IOException y) {
                     y.printStackTrace();
                 }
-            }
-            else
+            } else
                 caution();
         });
     }
 
-    private void showResults(ResultSet u) throws SQLException
-    {
+    private void showResults(ResultSet u) throws SQLException {
         cleanScreen();
         tableview = new TableView();
         tableview.getStyleClass().add("tableview");
         tableview.setMaxSize(900, 600);
         ObservableList<ObservableList> data = FXCollections.observableArrayList();
-        for(int i = 1 ; i < u.getMetaData().getColumnCount(); i++)
-        {
+        for (int i = 1; i < u.getMetaData().getColumnCount(); i++) {
             TableColumn col = new TableColumn(u.getMetaData().getColumnName(i + 1));
             col.setCellValueFactory(new CallbackImpl(i));
             tableview.getColumns().addAll(col);
-	    }
-        while(u.next())
-        {
+        }
+        while (u.next()) {
             ObservableList<String> row = FXCollections.observableArrayList();
-	        for(int i=1 ; i <= u.getMetaData().getColumnCount(); i++)
+            for (int i = 1; i <= u.getMetaData().getColumnCount(); i++)
                 row.add(u.getString(i));
-	        data.add(row);
+            data.add(row);
         }
         tableview.setItems(data);
         root.setCenter(tableview);
@@ -635,8 +580,7 @@ public class SySoft extends Application
         root.setLeft(box);
     }
 
-    private void caution()
-    {
+    private static void caution() {
         Alert alert = new Alert(AlertType.WARNING);
         alert.setTitle("Caution");
         alert.setHeaderText(null);
@@ -644,8 +588,7 @@ public class SySoft extends Application
         alert.showAndWait();
     }
 
-    private void cleanScreen()
-    {
+    private void cleanScreen() {
         labels.clear();
         textfields.clear();
         grid.getChildren().clear();
@@ -656,15 +599,13 @@ public class SySoft extends Application
         deleteAttribute.setDisable(false);
     }
 
-    private MenuBar reSearch1() throws SQLException
-    {
+    private MenuBar reSearch1() throws SQLException {
         MenuBar menuBar1 = new MenuBar();
         Menu menu1 = new Menu("Search Options");
         group1 = new ToggleGroup();
-        for(int i=1; i<c.reColumnsNames().length; i++)
-        {
+        for (int i = 1; i < c.reColumnsNames().length; i++) {
             RadioMenuItem radio = new RadioMenuItem(c.reColumnsNames()[i]);
-            radio.setOnAction((ActionEvent e)->
+            radio.setOnAction((ActionEvent e) ->
                     radio1 = radio.getText());
             menu1.getItems().add(radio);
             radio.setToggleGroup(group1);
@@ -673,15 +614,13 @@ public class SySoft extends Application
         return menuBar1;
     }
 
-    private MenuBar reSearch2() throws SQLException
-    {
+    private MenuBar reSearch2() throws SQLException {
         MenuBar menuBar2 = new MenuBar();
         Menu menu2 = new Menu("Search Options");
         group2 = new ToggleGroup();
-        for(int i=1; i<c.reColumnsNames().length; i++)
-        {
+        for (int i = 1; i < c.reColumnsNames().length; i++) {
             RadioMenuItem radio = new RadioMenuItem(c.reColumnsNames()[i]);
-            radio.setOnAction((ActionEvent e)->
+            radio.setOnAction((ActionEvent e) ->
                     radio2 = radio.getText());
             menu2.getItems().add(radio);
             radio.setToggleGroup(group2);
@@ -690,17 +629,15 @@ public class SySoft extends Application
         return menuBar2;
     }
 
-    private static class CallbackImpl implements Callback<CellDataFeatures<ObservableList, String>, ObservableValue<String>>
-    {
+    private static class CallbackImpl implements Callback<CellDataFeatures<ObservableList, String>, ObservableValue<String>> {
         private final int j;
 
-        CallbackImpl(int j)
-        {
+        CallbackImpl(int j) {
             this.j = j;
         }
+
         @Override
-        public ObservableValue<String> call(CellDataFeatures<ObservableList, String> param)
-        {
+        public ObservableValue<String> call(CellDataFeatures<ObservableList, String> param) {
             return new SimpleStringProperty(param.getValue().get(j).toString());
         }
     }
