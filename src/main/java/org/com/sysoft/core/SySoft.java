@@ -1,4 +1,4 @@
-package SySoft;
+package org.com.sysoft.core;
 
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.EncodeHintType;
@@ -34,6 +34,7 @@ import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.util.Callback;
+import org.com.sysoft.database.DbController;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -53,7 +54,7 @@ import java.util.logging.Logger;
 public class SySoft extends Application {
     private Text t;
     private ArrayList<Label> labels;
-    private ArrayList<TextField> textfields;
+    private ArrayList<TextField> textFields;
     private Button search;
     private Button insert;
     private DbController c;
@@ -79,39 +80,31 @@ public class SySoft extends Application {
     private ToggleGroup group2;
     private String radio1;
     private String radio2;
+    private MenuBar menu;
+    private Menu menuFile;
+    private RadioMenuItem startScreenMenuItem;
+    private RadioMenuItem insertMenuItem;
+    private RadioMenuItem searchMenuItem;
+    private RadioMenuItem showAllMenuItem;
+    private Menu menuEdit;
+    private MenuItem exitMenuItem;
+    MenuItem about;
+    Menu columnsedit;
+    Scene scene;
+    ToggleGroup group;
 
     public static void main(String[] args) {
         launch(args);
     }
 
-    @Override
-    public void start(Stage primaryStage) throws ClassNotFoundException, SQLException, URISyntaxException {
-        primaryStage.setTitle("SySoft");
-        c = new DbController();
+    private void initialiseFields() throws URISyntaxException, SQLException, ClassNotFoundException {
+        c = DbController.getInstance();
         root = new BorderPane();
         grid = new GridPane();
         box = new VBox();
         scroll = new ScrollPane();
-        MenuBar menu = new MenuBar();
-        Menu menuFile = new Menu("Option");
-        RadioMenuItem startScreenMenuItem = new RadioMenuItem("Start Screen");
-        RadioMenuItem insertMenuItem = new RadioMenuItem("New Record");
-        RadioMenuItem searchMenuItem = new RadioMenuItem("Search");
-        RadioMenuItem showAllMenuItem = new RadioMenuItem("Total of Records");
-        ToggleGroup group = new ToggleGroup();
-        group.getToggles().addAll(startScreenMenuItem, insertMenuItem, searchMenuItem, showAllMenuItem);
-        startScreenMenuItem.setSelected(true);
-        menuFile.getItems().addAll(startScreenMenuItem, new SeparatorMenuItem(), insertMenuItem, searchMenuItem, showAllMenuItem);
-        Menu menuEdit = new Menu("More");
-        MenuItem exitMenuItem = new MenuItem("Exit");
-        exitMenuItem.setOnAction(actionEvent -> Platform.exit());
-        MenuItem about = new MenuItem("About");
-        Menu columnsedit = new Menu("Modification of fields");
         newAttribute = new MenuItem("New field");
         deleteAttribute = new MenuItem("Delete field");
-        columnsedit.getItems().addAll(newAttribute, deleteAttribute);
-        menuEdit.getItems().addAll(columnsedit, new SeparatorMenuItem(), about, new SeparatorMenuItem(), exitMenuItem);
-        menu.getMenus().addAll(menuFile, menuEdit);
         insert = new Button("Insert");
         search = new Button("Search");
         modify = new Button("Modify");
@@ -120,23 +113,51 @@ public class SySoft extends Application {
         update = new Button("Update");
         qrcode = new Button("QRCode");
         bt1 = new Button("New Record");
-        bt1.setPrefSize(220, 60);
         bt2 = new Button("Search Record");
-        bt2.setPrefSize(220, 60);
         bt3 = new Button("Total of Records");
+        labels = new ArrayList<Label>();
+        textFields = new ArrayList<TextField>();
+        menu = new MenuBar();
+        menuFile = new Menu("Option");
+        startScreenMenuItem = new RadioMenuItem("Start Screen");
+        insertMenuItem = new RadioMenuItem("New Record");
+        searchMenuItem = new RadioMenuItem("Search");
+        showAllMenuItem = new RadioMenuItem("Total of Records");
+        menuEdit = new Menu("More");
+        exitMenuItem = new MenuItem("Exit");
+        about = new MenuItem("About");
+        columnsedit = new Menu("Modification of fields");
+        scene = new Scene(root, 1350, 700);
+        group = new ToggleGroup();
+    }
+
+    private void setNecessaryActions() {
+        bt1.setPrefSize(220, 60);
+        bt2.setPrefSize(220, 60);
         bt3.setPrefSize(220, 60);
         qrcode.setPrefWidth(150);
         qrcode.setPrefHeight(10);
         modify.setPrefSize(qrcode.getPrefWidth(), qrcode.getPrefHeight());
         delete.setPrefSize(qrcode.getPrefWidth(), qrcode.getPrefHeight());
         refresh.setPrefSize(qrcode.getPrefWidth(), qrcode.getPrefHeight());
-        labels = new ArrayList<>();
-        textfields = new ArrayList<>();
+        group.getToggles().addAll(startScreenMenuItem, insertMenuItem, searchMenuItem, showAllMenuItem);
+        startScreenMenuItem.setSelected(true);
+        menuFile.getItems().addAll(startScreenMenuItem, new SeparatorMenuItem(), insertMenuItem, searchMenuItem, showAllMenuItem);
+        exitMenuItem.setOnAction(actionEvent -> Platform.exit());
+        columnsedit.getItems().addAll(newAttribute, deleteAttribute);
+        menuEdit.getItems().addAll(columnsedit, new SeparatorMenuItem(), about, new SeparatorMenuItem(), exitMenuItem);
+        menu.getMenus().addAll(menuFile, menuEdit);
         root.setTop(menu);
-        Scene scene = new Scene(root, 1350, 700);
-        primaryStage.setScene(scene);
         scene.getStylesheets().add(SySoft.class.getResource("/SySoft.css").toExternalForm());
         grid.getStyleClass().add("grid");
+    }
+
+    @Override
+    public void start(Stage primaryStage) throws ClassNotFoundException, SQLException, URISyntaxException {
+        primaryStage.setTitle("SySoft");
+        initialiseFields();
+        setNecessaryActions();
+        primaryStage.setScene(scene);
         primaryStage.show();
 
         startScreenMenuItem.setOnAction((ActionEvent e) -> {
@@ -167,7 +188,7 @@ public class SySoft extends Application {
             }
             boo = new TextField();
             boo.setText(null);
-            textfields.add(boo);
+            textFields.add(boo);
             grid.add(boo, 1, 1);
             try {
                 grid.add(reSearch2(), 0, 2);
@@ -176,7 +197,7 @@ public class SySoft extends Application {
             }
             boo = new TextField();
             boo.setText(null);
-            textfields.add(boo);
+            textFields.add(boo);
             grid.add(boo, 1, 2);
             box.getChildren().add(search);
             search.setDefaultButton(true);
@@ -188,7 +209,7 @@ public class SySoft extends Application {
         });
         insertMenuItem.setOnAction((ActionEvent e) -> {
             try {
-                if (c.reColumnsNames().length == 1)
+                if (c.getColumnsNames().length == 1)
                     startScreenMenuItem.fire();
                 else {
                     cleanScreen();
@@ -213,8 +234,8 @@ public class SySoft extends Application {
                     try {
                         column = 0;
                         row = 2;
-                        for (int i = 1; i < c.reColumnsNames().length; i++) {
-                            foo = new Label(c.reColumnsNames()[i] + ":");
+                        for (int i = 1; i < c.getColumnsNames().length; i++) {
+                            foo = new Label(c.getColumnsNames()[i] + ":");
                             labels.add(foo);
                             if (column == 0) {
                                 gr.add(foo, column, row);
@@ -234,10 +255,10 @@ public class SySoft extends Application {
                     try {
                         column = 1;
                         row = 2;
-                        for (int i = 1; i < c.reColumnsNames().length; i++) {
+                        for (int i = 1; i < c.getColumnsNames().length; i++) {
                             boo = new TextField();
                             boo.setMaxWidth(100);
-                            textfields.add(boo);
+                            textFields.add(boo);
                             if (column == 1) {
                                 gr.add(boo, column, row);
                                 column = 3;
@@ -269,7 +290,7 @@ public class SySoft extends Application {
                             Optional<String> result = dialog.showAndWait();
                             result.ifPresent(s -> {
                                 try {
-                                    c.renameColumn(point, s);
+                                    c.renameField(point, s);
                                     insertMenuItem.fire();
                                 } catch (SQLException ex) {
                                     Logger.getLogger(SySoft.class.getName()).log(Level.SEVERE, null, ex);
@@ -315,7 +336,7 @@ public class SySoft extends Application {
         });
         deleteAttribute.setOnAction((ActionEvent e) -> {
             try {
-                if (c.reColumnsNames().length > 4) {
+                if (c.getColumnsNames().length > 4) {
                     int point = -1;
                     do {
                         TextInputDialog dialog = new TextInputDialog();
@@ -325,8 +346,8 @@ public class SySoft extends Application {
                         Optional<String> result = dialog.showAndWait();
                         if (result.isPresent()) {
                             try {
-                                for (int i = 0; i < c.reColumnsNames().length; i++) {
-                                    String name = c.reColumnsNames()[i];
+                                for (int i = 0; i < c.getColumnsNames().length; i++) {
+                                    String name = c.getColumnsNames()[i];
                                     String name1 = result.get();
                                     if (name1.equals(name)) {
                                         point = i;
@@ -339,25 +360,17 @@ public class SySoft extends Application {
                             break;
                         dialog.close();
                         if (point == -1) {
-                            Alert alert = new Alert(AlertType.WARNING);
-                            alert.setTitle("Caution");
-                            alert.setHeaderText(null);
-                            alert.setContentText("There is no field with this name");
-                            alert.showAndWait();
+                            Alerts.fireNoFieldForNameAlert();
                         }
                     } while (point == -1);
                     try {
                         if (point != -1)
-                            c.deleteAttribute(point);
+                            c.deleteField(point);
                     } catch (SQLException ex) {
                         Logger.getLogger(SySoft.class.getName()).log(Level.SEVERE, null, ex);
                     }
                 } else {
-                    Alert alert = new Alert(AlertType.WARNING);
-                    alert.setTitle("Caution");
-                    alert.setHeaderText(null);
-                    alert.setContentText("There can not be less than 3 fields");
-                    alert.showAndWait();
+                    Alerts.fireDefault3FieldsInTableAlert();
                 }
             } catch (SQLException ex) {
                 Logger.getLogger(SySoft.class.getName()).log(Level.SEVERE, null, ex);
@@ -368,63 +381,43 @@ public class SySoft extends Application {
         bt3.setOnAction((ActionEvent e) -> showAllMenuItem.fire());
         insert.setOnAction((ActionEvent e) -> {
             int counter = 0;
-            for (TextField r : textfields) {
+            for (TextField r : textFields) {
                 if (r.getText().equals(""))
                     counter++;
             }
-            if (counter != textfields.size()) {
+            if (counter != textFields.size()) {
                 int y = -1;
                 try {
-                    y = c.insertExecutor(textfields);
+                    y = c.insertExecutor(textFields);
                 } catch (SQLException ex) {
                     Logger.getLogger(SySoft.class.getName()).log(Level.SEVERE, null, ex);
                 }
                 if (y == 1) {
-                    for (TextField textfield : textfields) textfield.clear();
-                    Alert alert = new Alert(AlertType.INFORMATION);
-                    alert.setHeaderText(null);
-                    alert.setTitle("Information");
-                    alert.setContentText("The insertion was successful");
-                    alert.showAndWait();
+                    textFields.forEach(textField -> textField.clear());
+                    Alerts.fireStatusInsertionAlert(true);
                 } else {
-                    Alert alert = new Alert(AlertType.INFORMATION);
-                    alert.setHeaderText(null);
-                    alert.setTitle("Information");
-                    alert.setContentText("The insertion was unsuccessful");
-                    alert.showAndWait();
+                    Alerts.fireStatusInsertionAlert(false);
                 }
             } else {
-                Alert alert = new Alert(AlertType.INFORMATION);
-                alert.setHeaderText(null);
-                alert.setTitle("Information");
-                alert.setContentText("Please fill at least one field");
-                alert.showAndWait();
+                Alerts.fireAtLeastOneFieldAlert();
                 insertMenuItem.fire();
             }
         });
         search.setOnAction((ActionEvent e) -> {
             try {
-                if (((textfields.get(0).getText() == null) &&
-                        (null == textfields.get(1).getText())) ||
-                        ((textfields.get(0).getText().isEmpty())
-                                && (null == textfields.get(1).getText())) ||
-                        ((null == textfields.get(0).getText())
-                                && (textfields.get(1).getText().isEmpty())) ||
-                        ((textfields.get(0).getText().isEmpty()))
-                                && (textfields.get(1).getText().isEmpty())) {
-                    Alert alert = new Alert(AlertType.INFORMATION);
-                    alert.setTitle("Caution");
-                    alert.setHeaderText(null);
-                    alert.setContentText("Please fill at least one field");
-                    alert.showAndWait();
+                if (((textFields.get(0).getText() == null) &&
+                        (null == textFields.get(1).getText())) ||
+                        ((textFields.get(0).getText().isEmpty())
+                                && (null == textFields.get(1).getText())) ||
+                        ((null == textFields.get(0).getText())
+                                && (textFields.get(1).getText().isEmpty())) ||
+                        ((textFields.get(0).getText().isEmpty()))
+                                && (textFields.get(1).getText().isEmpty())) {
+                    Alerts.fireAtLeastOneFieldAlert();
                 } else if ((group1.getSelectedToggle() == null) || (group2.getSelectedToggle() == null)) {
-                    Alert alert = new Alert(AlertType.INFORMATION);
-                    alert.setTitle("Caution");
-                    alert.setHeaderText(null);
-                    alert.setContentText("Please check 2 search options");
-                    alert.showAndWait();
+                    Alerts.fireMissing2SearchOptionsAlert();
                 } else {
-                    showResults(c.searchExecutor(radio1, radio2, textfields.get(0).getText(), textfields.get(1).getText()));
+                    showResults(c.searchExecutor(radio1, radio2, textFields.get(0).getText(), textFields.get(1).getText()));
                     box.getChildren().remove(refresh);
                     VBox.setMargin(qrcode, new Insets(0, 0, 0, 0));
                 }
@@ -433,11 +426,7 @@ public class SySoft extends Application {
             }
         });
         about.setOnAction((ActionEvent e) -> {
-            Alert alert = new Alert(AlertType.INFORMATION);
-            alert.setTitle("Information");
-            alert.setHeaderText(null);
-            alert.setContentText("Creator: Karapostolakis Sotirios\nemail: skarapos@outlook.com\n");
-            alert.showAndWait();
+            Alerts.fireAboutAlert();
         });
         modify.setOnAction((ActionEvent e) -> {
             ObservableList row = (ObservableList) tableview.getSelectionModel().getSelectedItem();
@@ -445,15 +434,15 @@ public class SySoft extends Application {
             deleteAttribute.setDisable(true);
             if (row != null) {
                 insertMenuItem.fire();
-                for (int i = 0; i < textfields.size(); i++)
-                    textfields.get(i).setText((String) row.get(i + 1));
+                for (int i = 0; i < textFields.size(); i++)
+                    textFields.get(i).setText((String) row.get(i + 1));
                 t.setText("Update Record");
                 box.getChildren().remove(insert);
                 box.getChildren().add(update);
                 update.setDefaultButton(true);
                 id = (String) row.get(0);
             } else
-                caution();
+                Alerts.fireMissingSelectedRowAlert();
         });
         delete.setOnAction((ActionEvent e) -> {
             ObservableList row = (ObservableList) tableview.getSelectionModel().getSelectedItem();
@@ -471,13 +460,13 @@ public class SySoft extends Application {
                     Logger.getLogger(SySoft.class.getName()).log(Level.SEVERE, null, ex);
                 }
             } else
-                caution();
+                Alerts.fireMissingSelectedRowAlert();
         });
         refresh.setOnAction((ActionEvent e) -> showAllMenuItem.fire());
         update.setOnAction((ActionEvent e) -> {
             try {
-                if (c.updateExecutor(textfields, id) == 1) {
-                    for (TextField textfield : textfields) textfield.clear();
+                if (c.updateExecutor(textFields, id) == 1) {
+                    textFields.forEach(textField -> textField.clear());
                     Alert alert = new Alert(AlertType.INFORMATION);
                     alert.setHeaderText(null);
                     alert.setTitle("Information");
@@ -502,7 +491,7 @@ public class SySoft extends Application {
                 String columns[] = null;
                 StringBuilder myCodeText = new StringBuilder();
                 try {
-                    columns = c.reColumnsNames();
+                    columns = c.getColumnsNames();
                 } catch (SQLException ex) {
                     Logger.getLogger(SySoft.class.getName()).log(Level.SEVERE, null, ex);
                 }
@@ -543,7 +532,7 @@ public class SySoft extends Application {
                     y.printStackTrace();
                 }
             } else
-                caution();
+                Alerts.fireMissingSelectedRowAlert();
         });
     }
 
@@ -580,17 +569,9 @@ public class SySoft extends Application {
         root.setLeft(box);
     }
 
-    private static void caution() {
-        Alert alert = new Alert(AlertType.WARNING);
-        alert.setTitle("Caution");
-        alert.setHeaderText(null);
-        alert.setContentText("Please select a row");
-        alert.showAndWait();
-    }
-
     private void cleanScreen() {
         labels.clear();
-        textfields.clear();
+        textFields.clear();
         grid.getChildren().clear();
         box.getChildren().clear();
         root.setCenter(null);
@@ -603,8 +584,8 @@ public class SySoft extends Application {
         MenuBar menuBar1 = new MenuBar();
         Menu menu1 = new Menu("Search Options");
         group1 = new ToggleGroup();
-        for (int i = 1; i < c.reColumnsNames().length; i++) {
-            RadioMenuItem radio = new RadioMenuItem(c.reColumnsNames()[i]);
+        for (int i = 1; i < c.getColumnsNames().length; i++) {
+            RadioMenuItem radio = new RadioMenuItem(c.getColumnsNames()[i]);
             radio.setOnAction((ActionEvent e) ->
                     radio1 = radio.getText());
             menu1.getItems().add(radio);
@@ -618,8 +599,8 @@ public class SySoft extends Application {
         MenuBar menuBar2 = new MenuBar();
         Menu menu2 = new Menu("Search Options");
         group2 = new ToggleGroup();
-        for (int i = 1; i < c.reColumnsNames().length; i++) {
-            RadioMenuItem radio = new RadioMenuItem(c.reColumnsNames()[i]);
+        for (int i = 1; i < c.getColumnsNames().length; i++) {
+            RadioMenuItem radio = new RadioMenuItem(c.getColumnsNames()[i]);
             radio.setOnAction((ActionEvent e) ->
                     radio2 = radio.getText());
             menu2.getItems().add(radio);

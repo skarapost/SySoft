@@ -4,8 +4,8 @@
    http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>SySoft</groupId>
-    <artifactId>SySoft</artifactId>
+    <groupId>org.com.sysoft</groupId>
+    <artifactId>sysoft</artifactId>
     <version>1.0</version>
 
     <properties>
@@ -23,10 +23,15 @@
             <artifactId>sqlite-jdbc</artifactId>
             <version>3.32.3</version>
         </dependency>
+        <dependency>
+            <groupId>org.jetbrains</groupId>
+            <artifactId>annotations</artifactId>
+            <version>RELEASE</version>
+            <scope>compile</scope>
+        </dependency>
     </dependencies>
 
     <build>
-      <finalName>sysoft</finalName>
         <plugins>
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -41,7 +46,7 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>SySoft.SySoft</mainClass>
+                            <mainClass>org.com.sysoft.core.SySoft</mainClass>
                         </manifest>
                     </archive>
                     <descriptorRefs>
