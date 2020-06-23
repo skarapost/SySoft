@@ -143,7 +143,6 @@ public class SySoft extends Application {
         group.getToggles().addAll(startScreenMenuItem, insertMenuItem, searchMenuItem, showAllMenuItem);
         startScreenMenuItem.setSelected(true);
         menuFile.getItems().addAll(startScreenMenuItem, new SeparatorMenuItem(), insertMenuItem, searchMenuItem, showAllMenuItem);
-        exitMenuItem.setOnAction(actionEvent -> Platform.exit());
         columnsedit.getItems().addAll(newAttribute, deleteAttribute);
         menuEdit.getItems().addAll(columnsedit, new SeparatorMenuItem(), about, new SeparatorMenuItem(), exitMenuItem);
         menu.getMenus().addAll(menuFile, menuEdit);
@@ -159,6 +158,8 @@ public class SySoft extends Application {
         setNecessaryActions();
         primaryStage.setScene(scene);
         primaryStage.show();
+
+        exitMenuItem.setOnAction(actionEvent -> Platform.exit());
 
         startScreenMenuItem.setOnAction((ActionEvent e) -> {
             cleanScreen();
