@@ -7,12 +7,13 @@ SySoft is a convenient interface for storing every kind of information. The info
 ## Installation/Execution
 
 1) Build the project using maven.
-2) Search out ```sysoft.jar``` file in the ```target``` directory.
+2) Find the ```sysoft-1.0.jar``` executable under the ```target``` directory.
 3) Execute it keeping ```Records.sqlite``` file from the ```resources``` directory in the same path as ```sysoft.jar```.
 
 ## Functions
 
-SySoft can store every kind of information. In the resources directory there is a database with an already constructed database with a table, as well. Sqlite database contains 4 fields that cannot be deleted. An id field which is not visible, and other 3 fields. On top of this, the most significant operations are:
+SySoft can store every kind of information. In the resources directory there is a database with an already constructed database including a table. 
+The database should contain 4 fields that cannot be deleted. An id field which is not visible, and other 3 fields. On top of this, the most significant operations are:
 1) Create a new field.
 2) Delete a field.
 3) Rename a field.
