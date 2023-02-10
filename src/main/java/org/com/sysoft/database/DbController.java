@@ -24,9 +24,8 @@ public class DbController {
         return controller;
     }
 
-    public int insertExecutor(List<TextField> t) throws SQLException {
+    public static boolean insert(List<TextField> t) throws SQLException {
         PreparedStatement stm = null;
-        int result = 1;
         try {
             stm = conn.prepareStatement(builInsertStatement(t));
             for (int i = 0; i < t.size(); i++) {
@@ -37,17 +36,17 @@ public class DbController {
         } catch (SQLException e) {
             if (conn != null) {
                 conn.rollback();
-                result = 0;
+                return false;
             }
         } finally {
             if (stm != null) {
                 stm.close();
             }
         }
-        return result;
+        return true;
     }
 
-    public ResultSet searchExecutor(String radio1, String radio2, String name, String surname) throws SQLException {
+    public static ResultSet search(String radio1, String radio2, String name, String surname) throws SQLException {
         PreparedStatement s;
         ResultSet r = null;
         try {
@@ -75,7 +74,7 @@ public class DbController {
         return r;
     }
 
-    public int updateExecutor(ArrayList<TextField> g, String id) throws SQLException {
+    public static int update(ArrayList<TextField> g, String id) throws SQLException {
         PreparedStatement stm = null;
         int result = 1;
         try {
@@ -96,7 +95,7 @@ public class DbController {
         return result;
     }
 
-    public void deleteExecutor(int f) throws SQLException {
+    public static void delete(int f) throws SQLException {
         try (PreparedStatement s = conn.prepareStatement("DELETE from Customer WHERE Id = ?")) {
             s.setObject(1, f);
             s.executeUpdate();
@@ -107,7 +106,7 @@ public class DbController {
         }
     }
 
-    public ResultSet showAll() throws SQLException {
+    public static ResultSet showAll() throws SQLException {
         PreparedStatement s;
         ResultSet r = null;
         try {
@@ -121,7 +120,7 @@ public class DbController {
         return r;
     }
 
-    public void newAttribute(String at) throws SQLException {
+    public static void newAttribute(String at) throws SQLException {
         try (PreparedStatement s = conn.prepareStatement("ALTER TABLE Customer ADD COLUMN \"" + at + "\" TEXT DEFAULT 00000")) {
             s.execute();
             conn.commit();
@@ -131,7 +130,7 @@ public class DbController {
         }
     }
 
-    public void deleteField(int point) throws SQLException {
+    public static void deleteField(int point) throws SQLException {
         Statement st1 = null;
         try {
             String s1 = buildSqlStatement4(point), s3 = buildSqlStatement5(point);
@@ -154,7 +153,7 @@ public class DbController {
         }
     }
 
-    public String[] getColumnsNames() throws SQLException {
+    public static String[] getColumnsNames() throws SQLException {
         String[] f = null;
         ResultSet r;
         try (PreparedStatement s = conn.prepareStatement("SELECT * FROM Customer")) {
@@ -172,7 +171,7 @@ public class DbController {
         return f;
     }
 
-    public void renameField(int point, String name) throws SQLException {
+    public static void renameField(int point, String name) throws SQLException {
         Statement st1 = null;
         try {
             String s1 = buildSqlStatement1(), s2 = buildSqlStatement2(point + 1, name), s3 = buildSqlStatement3(point + 1, name);
@@ -195,7 +194,7 @@ public class DbController {
         }
     }
 
-    private String buildSqlStatement1() throws SQLException {
+    private static String buildSqlStatement1() throws SQLException {
         StringBuilder sql = new StringBuilder();
         String[] columnsNames = getColumnsNames();
         for (int i = 0; i < columnsNames.length; i++) {
@@ -207,7 +206,7 @@ public class DbController {
         return sql.toString();
     }
 
-    private String buildSqlStatement2(int point, String name) throws SQLException {
+    private static String buildSqlStatement2(int point, String name) throws SQLException {
         StringBuilder sql = new StringBuilder();
         String[] columnsNames = getColumnsNames();
         for (int i = 0; i < columnsNames.length; i++) {
@@ -223,7 +222,7 @@ public class DbController {
         return sql.toString();
     }
 
-    private String buildSqlStatement3(int point, String name) throws SQLException {
+    private static String buildSqlStatement3(int point, String name) throws SQLException {
         StringBuilder sql = new StringBuilder();
         String[] columnsNames = getColumnsNames();
         for (int i = 0; i < columnsNames.length; i++) {
@@ -243,7 +242,7 @@ public class DbController {
         return sql.toString();
     }
 
-    private String buildSqlStatement4(int point) throws SQLException {
+    private static String buildSqlStatement4(int point) throws SQLException {
         StringBuilder sql = new StringBuilder();
         String[] columnsNames = getColumnsNames();
         for (int i = 0; i < columnsNames.length; i++) {
@@ -263,7 +262,7 @@ public class DbController {
         return sql.toString();
     }
 
-    private String buildSqlStatement5(int point) throws SQLException {
+    private static String buildSqlStatement5(int point) throws SQLException {
         StringBuilder sql = new StringBuilder();
         String[] columnsNames = getColumnsNames();
         for (int i = 0; i < columnsNames.length; i++) {
@@ -283,7 +282,7 @@ public class DbController {
         return sql.toString();
     }
 
-    private String builInsertStatement(List<TextField> t) throws SQLException {
+    private static String builInsertStatement(List<TextField> t) throws SQLException {
         StringBuilder sql = new StringBuilder();
         sql.append("INSERT INTO Customer (");
         String[] columnsNames = getColumnsNames();
@@ -302,7 +301,7 @@ public class DbController {
         return sql.toString();
     }
 
-    private String buildUpdateStatement(List<TextField> g) throws SQLException {
+    private static String buildUpdateStatement(List<TextField> g) throws SQLException {
         StringBuilder sql = new StringBuilder();
         sql.append("UPDATE Customer SET ");
         String[] columnsNames = getColumnsNames();

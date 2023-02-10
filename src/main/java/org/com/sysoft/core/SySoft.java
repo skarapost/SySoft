@@ -57,16 +57,15 @@ public class SySoft extends Application {
     private ArrayList<TextField> textFields;
     private Button search;
     private Button insert;
-    private DbController c;
     private BorderPane root;
     private GridPane grid;
     private GridPane gr;
     private ScrollPane scroll;
     private VBox box;
     private VBox b;
-    private Button bt1;
-    private Button bt2;
-    private Button bt3;
+    private Button newRecordButton;
+    private Button searchRecordButton;
+    private Button totalOfRecordsButton;
     private Button modify;
     private Button delete;
     private Button refresh;
@@ -98,7 +97,6 @@ public class SySoft extends Application {
     }
 
     private void initialiseFields() throws URISyntaxException, SQLException, ClassNotFoundException {
-        c = DbController.getInstance();
         root = new BorderPane();
         grid = new GridPane();
         box = new VBox();
@@ -112,9 +110,9 @@ public class SySoft extends Application {
         refresh = new Button("Refresh");
         update = new Button("Update");
         qrcode = new Button("QRCode");
-        bt1 = new Button("New Record");
-        bt2 = new Button("Search Record");
-        bt3 = new Button("Total of Records");
+        newRecordButton = new Button("New Record");
+        searchRecordButton = new Button("Search Record");
+        totalOfRecordsButton = new Button("Total of Records");
         labels = new ArrayList<Label>();
         textFields = new ArrayList<TextField>();
         menu = new MenuBar();
@@ -132,9 +130,9 @@ public class SySoft extends Application {
     }
 
     private void setNecessaryActions() {
-        bt1.setPrefSize(220, 60);
-        bt2.setPrefSize(220, 60);
-        bt3.setPrefSize(220, 60);
+        newRecordButton.setPrefSize(220, 60);
+        searchRecordButton.setPrefSize(220, 60);
+        totalOfRecordsButton.setPrefSize(220, 60);
         qrcode.setPrefWidth(150);
         qrcode.setPrefHeight(10);
         modify.setPrefSize(qrcode.getPrefWidth(), qrcode.getPrefHeight());
@@ -166,9 +164,9 @@ public class SySoft extends Application {
             startScreenMenuItem.setSelected(true);
             grid.setMaxSize(400, 380);
             grid.setMinSize(400, 380);
-            grid.add(bt1, 0, 0);
-            grid.add(bt2, 0, 1);
-            grid.add(bt3, 0, 2);
+            grid.add(newRecordButton, 0, 0);
+            grid.add(searchRecordButton, 0, 1);
+            grid.add(totalOfRecordsButton, 0, 2);
             BorderPane.setAlignment(grid, Pos.CENTER);
             grid.setAlignment(Pos.CENTER);
             root.setCenter(grid);
@@ -210,7 +208,7 @@ public class SySoft extends Application {
         });
         insertMenuItem.setOnAction((ActionEvent e) -> {
             try {
-                if (c.getColumnsNames().length == 1)
+                if (DbController.getColumnsNames().length == 1)
                     startScreenMenuItem.fire();
                 else {
                     cleanScreen();
@@ -235,8 +233,8 @@ public class SySoft extends Application {
                     try {
                         column = 0;
                         row = 2;
-                        for (int i = 1; i < c.getColumnsNames().length; i++) {
-                            foo = new Label(c.getColumnsNames()[i] + ":");
+                        for (int i = 1; i < DbController.getColumnsNames().length; i++) {
+                            foo = new Label(DbController.getColumnsNames()[i] + ":");
                             labels.add(foo);
                             if (column == 0) {
                                 gr.add(foo, column, row);
@@ -256,7 +254,7 @@ public class SySoft extends Application {
                     try {
                         column = 1;
                         row = 2;
-                        for (int i = 1; i < c.getColumnsNames().length; i++) {
+                        for (int i = 1; i < DbController.getColumnsNames().length; i++) {
                             boo = new TextField();
                             boo.setMaxWidth(100);
                             textFields.add(boo);
@@ -291,7 +289,7 @@ public class SySoft extends Application {
                             Optional<String> result = dialog.showAndWait();
                             result.ifPresent(s -> {
                                 try {
-                                    c.renameField(point, s);
+                                	DbController.renameField(point, s);
                                     insertMenuItem.fire();
                                 } catch (SQLException ex) {
                                     Logger.getLogger(SySoft.class.getName()).log(Level.SEVERE, null, ex);
@@ -316,7 +314,7 @@ public class SySoft extends Application {
             cleanScreen();
             showAllMenuItem.setSelected(true);
             try {
-                showResults(c.showAll());
+                showResults(DbController.showAll());
             } catch (SQLException ex) {
                 Logger.getLogger(SySoft.class.getName()).log(Level.SEVERE, null, ex);
             }
@@ -329,7 +327,7 @@ public class SySoft extends Application {
             Optional<String> result = dialog.showAndWait();
             result.ifPresent(s -> {
                 try {
-                    c.newAttribute(s);
+                	DbController.newAttribute(s);
                 } catch (SQLException ex) {
                     Logger.getLogger(SySoft.class.getName()).log(Level.SEVERE, null, ex);
                 }
@@ -337,7 +335,7 @@ public class SySoft extends Application {
         });
         deleteAttribute.setOnAction((ActionEvent e) -> {
             try {
-                if (c.getColumnsNames().length > 4) {
+                if (DbController.getColumnsNames().length > 4) {
                     int point = -1;
                     do {
                         TextInputDialog dialog = new TextInputDialog();
@@ -347,8 +345,8 @@ public class SySoft extends Application {
                         Optional<String> result = dialog.showAndWait();
                         if (result.isPresent()) {
                             try {
-                                for (int i = 0; i < c.getColumnsNames().length; i++) {
-                                    String name = c.getColumnsNames()[i];
+                                for (int i = 0; i < DbController.getColumnsNames().length; i++) {
+                                    String name = DbController.getColumnsNames()[i];
                                     String name1 = result.get();
                                     if (name1.equals(name)) {
                                         point = i;
@@ -366,7 +364,7 @@ public class SySoft extends Application {
                     } while (point == -1);
                     try {
                         if (point != -1)
-                            c.deleteField(point);
+                        	DbController.deleteField(point);
                     } catch (SQLException ex) {
                         Logger.getLogger(SySoft.class.getName()).log(Level.SEVERE, null, ex);
                     }
@@ -377,9 +375,9 @@ public class SySoft extends Application {
                 Logger.getLogger(SySoft.class.getName()).log(Level.SEVERE, null, ex);
             }
         });
-        bt1.setOnAction((ActionEvent e) -> insertMenuItem.fire());
-        bt2.setOnAction((ActionEvent e) -> searchMenuItem.fire());
-        bt3.setOnAction((ActionEvent e) -> showAllMenuItem.fire());
+        newRecordButton.setOnAction((ActionEvent e) -> insertMenuItem.fire());
+        searchRecordButton.setOnAction((ActionEvent e) -> searchMenuItem.fire());
+        totalOfRecordsButton.setOnAction((ActionEvent e) -> showAllMenuItem.fire());
         insert.setOnAction((ActionEvent e) -> {
             int counter = 0;
             for (TextField r : textFields) {
@@ -387,13 +385,13 @@ public class SySoft extends Application {
                     counter++;
             }
             if (counter != textFields.size()) {
-                int y = -1;
+                boolean insertStatus = false;
                 try {
-                    y = c.insertExecutor(textFields);
+                	insertStatus = DbController.insert(textFields);
                 } catch (SQLException ex) {
                     Logger.getLogger(SySoft.class.getName()).log(Level.SEVERE, null, ex);
                 }
-                if (y == 1) {
+                if (insertStatus) {
                     textFields.forEach(textField -> textField.clear());
                     Alerts.fireStatusInsertionAlert(true);
                 } else {
@@ -418,7 +416,7 @@ public class SySoft extends Application {
                 } else if ((group1.getSelectedToggle() == null) || (group2.getSelectedToggle() == null)) {
                     Alerts.fireMissing2SearchOptionsAlert();
                 } else {
-                    showResults(c.searchExecutor(radio1, radio2, textFields.get(0).getText(), textFields.get(1).getText()));
+                    showResults(DbController.search(radio1, radio2, textFields.get(0).getText(), textFields.get(1).getText()));
                     box.getChildren().remove(refresh);
                     VBox.setMargin(qrcode, new Insets(0, 0, 0, 0));
                 }
@@ -455,7 +453,7 @@ public class SySoft extends Application {
                     alert.setContentText("Are you sure for the deletion?");
                     alert.showAndWait();
                     if (alert.getResult() == ButtonType.OK)
-                        c.deleteExecutor(Integer.parseInt((String) row.get(0)));
+                    	DbController.delete(Integer.parseInt((String) row.get(0)));
                     refresh.fire();
                 } catch (SQLException ex) {
                     Logger.getLogger(SySoft.class.getName()).log(Level.SEVERE, null, ex);
@@ -466,7 +464,7 @@ public class SySoft extends Application {
         refresh.setOnAction((ActionEvent e) -> showAllMenuItem.fire());
         update.setOnAction((ActionEvent e) -> {
             try {
-                if (c.updateExecutor(textFields, id) == 1) {
+                if (DbController.update(textFields, id) == 1) {
                     textFields.forEach(textField -> textField.clear());
                     Alert alert = new Alert(AlertType.INFORMATION);
                     alert.setHeaderText(null);
@@ -492,7 +490,7 @@ public class SySoft extends Application {
                 String columns[] = null;
                 StringBuilder myCodeText = new StringBuilder();
                 try {
-                    columns = c.getColumnsNames();
+                    columns = DbController.getColumnsNames();
                 } catch (SQLException ex) {
                     Logger.getLogger(SySoft.class.getName()).log(Level.SEVERE, null, ex);
                 }
@@ -585,8 +583,8 @@ public class SySoft extends Application {
         MenuBar menuBar1 = new MenuBar();
         Menu menu1 = new Menu("Search Options");
         group1 = new ToggleGroup();
-        for (int i = 1; i < c.getColumnsNames().length; i++) {
-            RadioMenuItem radio = new RadioMenuItem(c.getColumnsNames()[i]);
+        for (int i = 1; i < DbController.getColumnsNames().length; i++) {
+            RadioMenuItem radio = new RadioMenuItem(DbController.getColumnsNames()[i]);
             radio.setOnAction((ActionEvent e) ->
                     radio1 = radio.getText());
             menu1.getItems().add(radio);
@@ -600,8 +598,8 @@ public class SySoft extends Application {
         MenuBar menuBar2 = new MenuBar();
         Menu menu2 = new Menu("Search Options");
         group2 = new ToggleGroup();
-        for (int i = 1; i < c.getColumnsNames().length; i++) {
-            RadioMenuItem radio = new RadioMenuItem(c.getColumnsNames()[i]);
+        for (int i = 1; i < DbController.getColumnsNames().length; i++) {
+            RadioMenuItem radio = new RadioMenuItem(DbController.getColumnsNames()[i]);
             radio.setOnAction((ActionEvent e) ->
                     radio2 = radio.getText());
             menu2.getItems().add(radio);
