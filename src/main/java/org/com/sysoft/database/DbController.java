@@ -17,7 +17,7 @@ public class DbController {
     private DbController() {
     }
 
-    public static DbController getInstance() {
+    public static DbController initialiseDatabase() {
         DbController controller = DbControllerHelper.dbController;
         if (conn == null)
             Alerts.fireMissingDatabaseAlert();
@@ -325,7 +325,7 @@ public class DbController {
             } catch (URISyntaxException e) {
                 e.printStackTrace();
             }
-            String dir = s.getPath().replace("sysoft.jar", "");
+            String dir = s.getPath().replace("sysoft-1.0.jar", "");
             File file = new File(dir + "Records.sqlite");
             if (file.exists() && !file.isDirectory()) {
                 try {

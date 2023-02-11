@@ -62,7 +62,7 @@ public final class Alerts {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle("Information");
         alert.setHeaderText(null);
-        alert.setContentText("Creator: Karapostolakis Sotirios\nE-mail: skarapos@outlook.com");
+        alert.setContentText("Creator: Karapostolakis Sotirios\nE-mail: sotkar14@gmail.com");
         alert.showAndWait();
     }
 
