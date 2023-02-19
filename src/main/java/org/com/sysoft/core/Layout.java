@@ -218,7 +218,7 @@ public class Layout {
         });
         insertMenuItem.setOnAction((ActionEvent e) -> {
             try {
-                if (DbController.getColumnsNames().length == 1)
+                if (DbController.getFields().length == 1)
                     startScreenMenuItem.fire();
                 else {
                     cleanScreen();
@@ -243,8 +243,8 @@ public class Layout {
                     try {
                         column = 0;
                         row = 2;
-                        for (int i = 1; i < DbController.getColumnsNames().length; i++) {
-                            foo = new Label(DbController.getColumnsNames()[i] + ":");
+                        for (int i = 1; i < DbController.getFields().length; i++) {
+                            foo = new Label(DbController.getFields()[i] + ":");
                             labels.add(foo);
                             if (column == 0) {
                                 insertGrid.add(foo, column, row);
@@ -264,7 +264,7 @@ public class Layout {
                     try {
                         column = 1;
                         row = 2;
-                        for (int i = 1; i < DbController.getColumnsNames().length; i++) {
+                        for (int i = 1; i < DbController.getFields().length; i++) {
                             boo = new TextField();
                             boo.setMaxWidth(100);
                             textFields.add(boo);
@@ -337,7 +337,7 @@ public class Layout {
             Optional<String> result = dialog.showAndWait();
             result.ifPresent(s -> {
                 try {
-                	DbController.newAttribute(s);
+                	DbController.newField(s);
                 } catch (SQLException ex) {
                     Logger.getLogger(SySoft.class.getName()).log(Level.SEVERE, null, ex);
                 }
@@ -345,7 +345,7 @@ public class Layout {
         });
         deleteAttribute.setOnAction((ActionEvent e) -> {
             try {
-                if (DbController.getColumnsNames().length > 4) {
+                if (DbController.getFields().length > 4) {
                     int point = -1;
                     do {
                         TextInputDialog dialog = new TextInputDialog();
@@ -355,8 +355,8 @@ public class Layout {
                         Optional<String> result = dialog.showAndWait();
                         if (result.isPresent()) {
                             try {
-                                for (int i = 0; i < DbController.getColumnsNames().length; i++) {
-                                    String name = DbController.getColumnsNames()[i];
+                                for (int i = 0; i < DbController.getFields().length; i++) {
+                                    String name = DbController.getFields()[i];
                                     String name1 = result.get();
                                     if (name1.equals(name)) {
                                         point = i;
@@ -500,7 +500,7 @@ public class Layout {
                 String columns[] = null;
                 StringBuilder myCodeText = new StringBuilder();
                 try {
-                    columns = DbController.getColumnsNames();
+                    columns = DbController.getFields();
                 } catch (SQLException ex) {
                     Logger.getLogger(SySoft.class.getName()).log(Level.SEVERE, null, ex);
                 }
@@ -593,8 +593,8 @@ public class Layout {
         MenuBar menuBar1 = new MenuBar();
         Menu menu1 = new Menu("Search Options");
         group1 = new ToggleGroup();
-        for (int i = 1; i < DbController.getColumnsNames().length; i++) {
-            RadioMenuItem radio = new RadioMenuItem(DbController.getColumnsNames()[i]);
+        for (int i = 1; i < DbController.getFields().length; i++) {
+            RadioMenuItem radio = new RadioMenuItem(DbController.getFields()[i]);
             radio.setOnAction((ActionEvent e) ->
                     radio1 = radio.getText());
             menu1.getItems().add(radio);
@@ -608,8 +608,8 @@ public class Layout {
         MenuBar menuBar2 = new MenuBar();
         Menu menu2 = new Menu("Search Options");
         group2 = new ToggleGroup();
-        for (int i = 1; i < DbController.getColumnsNames().length; i++) {
-            RadioMenuItem radio = new RadioMenuItem(DbController.getColumnsNames()[i]);
+        for (int i = 1; i < DbController.getFields().length; i++) {
+            RadioMenuItem radio = new RadioMenuItem(DbController.getFields()[i]);
             radio.setOnAction((ActionEvent e) ->
                     radio2 = radio.getText());
             menu2.getItems().add(radio);
