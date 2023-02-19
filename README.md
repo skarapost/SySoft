@@ -8,7 +8,7 @@ SySoft is a convenient interface for storing every kind of information. The info
 
 1) Build the project using maven.
 2) Find the ```sysoft-1.0.jar``` executable under the ```target``` directory.
-3) Execute it keeping ```Records.sqlite``` file from the ```resources``` directory in the same path as ```sysoft.jar```.
+3) Execute it keeping ```Records.sqlite``` file from the ```resources``` directory in the same path as ```sysoft-1.0.jar```.
 
 ## Functions
 
