@@ -63,7 +63,7 @@ import javafx.util.Callback;
 
 public class Layout {
 
-	private Text recordSearchText;
+	private Text topTitleText;
     private ArrayList<Label> labels;
     private ArrayList<TextField> textFields;
     private BorderPane root;
@@ -82,7 +82,7 @@ public class Layout {
     private Button refresh;
     private Button update;
     private Button qrcode;
-    private TableView tableview;
+    private TableView<ObservableList<String>> tableview;
     private String id;
     private MenuItem newAttribute;
     private MenuItem deleteAttribute;
@@ -187,9 +187,9 @@ public class Layout {
             searchMenuItem.setSelected(true);
             TextField boo;
             centreGrid.setMaxSize(300, 280);
-            recordSearchText = new Text("Record Search");
-            recordSearchText.setId("welcome");
-            centreGrid.add(recordSearchText, 0, 0, 2, 1);
+            topTitleText = new Text("Record Search");
+            topTitleText.setId("welcome");
+            centreGrid.add(topTitleText, 0, 0, 2, 1);
             try {
                 centreGrid.add(firstSearchOption(), 0, 1);
             } catch (SQLException ex) {
@@ -236,14 +236,14 @@ public class Layout {
                     insertGrid.setMaxSize(scroll.getMaxWidth(), scroll.getMaxHeight());
                     insertGrid.getStyleClass().add("gr");
                     scene.getStylesheets().add(SySoft.class.getResource("/SySoft.css").toExternalForm());
-                    recordSearchText = new Text("Insertion of Record");
-                    recordSearchText.setId("welcome");
-                    b.getChildren().add(recordSearchText);
+                    topTitleText = new Text("Insertion of Record");
+                    topTitleText.setId("welcome");
+                    b.getChildren().add(topTitleText);
                     insertGrid.add(b, 0, 0, 10, 1);
                     try {
                         column = 0;
                         row = 2;
-                        for (int i = 1; i < DbController.getFields().length; i++) {
+                        for (int i = 1; i < DbController.getFields().length - 1; i++) {
                             foo = new Label(DbController.getFields()[i] + ":");
                             labels.add(foo);
                             if (column == 0) {
@@ -264,7 +264,7 @@ public class Layout {
                     try {
                         column = 1;
                         row = 2;
-                        for (int i = 1; i < DbController.getFields().length; i++) {
+                        for (int i = 1; i < DbController.getFields().length - 1; i++) {
                             boo = new TextField();
                             boo.setMaxWidth(100);
                             textFields.add(boo);
@@ -438,14 +438,14 @@ public class Layout {
             Alerts.fireAboutAlert();
         });
         modify.setOnAction((ActionEvent e) -> {
-            ObservableList row = (ObservableList) tableview.getSelectionModel().getSelectedItem();
+            ObservableList<String> row = tableview.getSelectionModel().getSelectedItem();
             newAttribute.setDisable(true);
             deleteAttribute.setDisable(true);
             if (row != null) {
                 insertMenuItem.fire();
                 for (int i = 0; i < textFields.size(); i++)
                     textFields.get(i).setText((String) row.get(i + 1));
-                recordSearchText.setText("Update Record");
+                topTitleText.setText("Update Record");
                 box.getChildren().remove(insert);
                 box.getChildren().add(update);
                 update.setDefaultButton(true);
@@ -454,7 +454,7 @@ public class Layout {
                 Alerts.fireMissingSelectedRowAlert();
         });
         delete.setOnAction((ActionEvent e) -> {
-            ObservableList row = (ObservableList) tableview.getSelectionModel().getSelectedItem();
+            ObservableList<String> row = tableview.getSelectionModel().getSelectedItem();
             if (row != null) {
                 try {
                     Alert alert = new Alert(AlertType.INFORMATION);
@@ -474,7 +474,7 @@ public class Layout {
         refresh.setOnAction((ActionEvent e) -> showAllMenuItem.fire());
         update.setOnAction((ActionEvent e) -> {
             try {
-                if (DbController.update(textFields, id) == 1) {
+                if (DbController.update(textFields, id)) {
                     textFields.forEach(textField -> textField.clear());
                     Alert alert = new Alert(AlertType.INFORMATION);
                     alert.setHeaderText(null);
@@ -495,7 +495,7 @@ public class Layout {
             }
         });
         qrcode.setOnAction((ActionEvent e) -> {
-            ObservableList row = (ObservableList) tableview.getSelectionModel().getSelectedItem();
+            ObservableList<String> row = tableview.getSelectionModel().getSelectedItem();
             if (row != null) {
                 String columns[] = null;
                 StringBuilder myCodeText = new StringBuilder();
@@ -545,27 +545,27 @@ public class Layout {
         });
     }
     
-    private void showResults(ResultSet u) throws SQLException {
+    private void showResults(ResultSet result) throws SQLException {
         cleanScreen();
-        tableview = new TableView();
+        tableview = new TableView<ObservableList<String>>();
         tableview.getStyleClass().add("tableview");
         tableview.setMaxSize(900, 600);
-        ObservableList<ObservableList> data = FXCollections.observableArrayList();
-        for (int i = 1; i < u.getMetaData().getColumnCount(); i++) {
-            TableColumn col = new TableColumn(u.getMetaData().getColumnName(i + 1));
+        ObservableList<ObservableList<String>> data = FXCollections.observableArrayList();
+        for (int i = 1; i < result.getMetaData().getColumnCount(); i++) {
+            TableColumn col = new TableColumn(result.getMetaData().getColumnName(i + 1));
             col.setCellValueFactory(new CallbackImpl(i));
             tableview.getColumns().addAll(col);
         }
-        while (u.next()) {
+        while (result.next()) {
             ObservableList<String> row = FXCollections.observableArrayList();
-            for (int i = 1; i <= u.getMetaData().getColumnCount(); i++)
-                row.add(u.getString(i));
+            for (int i = 1; i <= result.getMetaData().getColumnCount(); i++)
+                row.add(result.getString(i));
             data.add(row);
         }
         tableview.setItems(data);
         root.setCenter(tableview);
-        if (u != null)
-            u.close();
+        if (result != null)
+        	result.close();
         box.getChildren().addAll(modify, delete, qrcode);
         box.setMaxSize(300, 140);
         BorderPane.setAlignment(box, Pos.CENTER);

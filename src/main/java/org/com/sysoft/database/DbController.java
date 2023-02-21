@@ -47,8 +47,9 @@ public class DbController {
         	
             stm = conn.prepareStatement(stringBuilder.toString());
             for (int i = 0; i < textFields.size(); i++) {
-                stm.setObject(i + 1, textFields.get(i).getText());
+            	stm.setObject(i + 1, textFields.get(i).getText());
             }
+        	stm.setObject(textFields.size() + 1, System.currentTimeMillis());
             stm.executeUpdate();
             conn.commit();
         } catch (SQLException e) {
