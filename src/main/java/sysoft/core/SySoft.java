@@ -1,9 +1,8 @@
-package org.com.sysoft.core;
-
-import org.com.sysoft.database.DbController;
+package sysoft.core;
 
 import javafx.application.Application;
 import javafx.stage.Stage;
+import sysoft.database.DbController;
 
 public class SySoft extends Application {
     

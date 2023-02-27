@@ -1,7 +1,7 @@
-package org.com.sysoft.database;
+package sysoft.database;
 
 import javafx.scene.control.TextField;
-import org.com.sysoft.core.Alerts;
+import sysoft.core.Alerts;
 
 import java.io.File;
 import java.net.URI;

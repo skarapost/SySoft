@@ -1,4 +1,4 @@
-package org.com.sysoft.core;
+package sysoft.core;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
@@ -15,8 +15,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.imageio.ImageIO;
-
-import org.com.sysoft.database.DbController;
 
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.EncodeHintType;
@@ -60,6 +58,7 @@ import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.util.Callback;
+import sysoft.database.DbController;
 
 public class Layout {
 

@@ -1,4 +1,4 @@
-package org.com.sysoft.core;
+package sysoft.core;
 
 public class GuiStarter {
 	

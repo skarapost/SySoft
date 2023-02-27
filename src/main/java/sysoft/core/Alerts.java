@@ -1,4 +1,4 @@
-package org.com.sysoft.core;
+package sysoft.core;
 
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
