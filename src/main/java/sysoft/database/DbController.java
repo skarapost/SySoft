@@ -10,6 +10,7 @@ import java.net.URISyntaxException;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -33,25 +34,28 @@ public class DbController {
         	
         	StringBuilder stringBuilder = new StringBuilder();
             stringBuilder.append("INSERT INTO Customer (");
-            String[] columnsNames = getFields();
-            for (int i = 1; i < columnsNames.length; i++) {
-                if(i > 1)
+            String[] columnsNames = getFields(false, true);
+            for (int i = 0; i < columnsNames.length; i++) {
+                if(i > 0) {
                 	stringBuilder.append(",");
+                }
                 stringBuilder.append("\"").append(columnsNames[i]).append("\"");
             }
             stringBuilder.append(") VALUES (");
-            for (int i = 1; i < columnsNames.length; i++) {
-                if (i > 1)
+            for (int i = 0; i < columnsNames.length; i++) {
+                if (i > 0) {
                 	stringBuilder.append(",");
+                }
                 stringBuilder.append("?");
             }
             stringBuilder.append(")");
         	
             stm = conn.prepareStatement(stringBuilder.toString());
+            int counter = 1;
+            stm.setObject(counter, System.currentTimeMillis());
             for (Map.Entry<String, String> field: entry.getListOfFields()) {
-            	stm.setObject(i + 1, textFields.get(i).getText());
+            	stm.setObject(++counter, field.getValue());
             }
-        	stm.setObject(textFields.size() + 1, System.currentTimeMillis());
             stm.executeUpdate();
             conn.commit();
         } catch (SQLException e) {
@@ -93,18 +97,22 @@ public class DbController {
         return resultSet;
     }
 
-    public static boolean update(ArrayList<TextField> textFields, String id) throws SQLException {
+    public static boolean update(Entry entry, String id) throws SQLException {
         PreparedStatement stm = null;
         try {
         	
         	StringBuilder stringBuilder = new StringBuilder();
             stringBuilder.append("UPDATE Customer SET ");
-            String[] columnsNames = getFields();
-            for (int i = 1; i < columnsNames.length; i++) {
-                if (i > 1)
+            String[] columnsNames = getFields(false, false);
+            Iterator<java.util.Map.Entry<String, String>> listOfFieldsIterator = entry.getListOfFields().iterator();
+            for (int i = 0; i < columnsNames.length; i++) {
+                if (i > 0) {
                 	stringBuilder.append(",");
-                if (!textFields.get(i - 1).getText().equals(""))
-                	stringBuilder.append("\"").append(columnsNames[i]).append("\"=").append("'").append(textFields.get(i - 1).getText()).append("'");
+                }
+                String value = listOfFieldsIterator.next().getValue();
+                if (!value.equals("")) {
+                	stringBuilder.append("\"").append(columnsNames[i]).append("\"=").append("'").append(value).append("'");
+                }
             }
             stringBuilder.append(" WHERE Id = ?");
         	
@@ -183,7 +191,7 @@ public class DbController {
         }
     }
 
-    public static String[] getFields() throws SQLException {
+    public static String[] getFields(boolean includeId, boolean includeTimeOfCreation) throws SQLException {
         String[] columnNames = null;
         ResultSet resultSet;
         try (PreparedStatement s = conn.prepareStatement("SELECT * FROM Customer")) {
@@ -192,6 +200,7 @@ public class DbController {
             ResultSetMetaData rsmd = resultSet.getMetaData();
             columnNames = new String[rsmd.getColumnCount()];
             for (int i = 0; i < rsmd.getColumnCount(); i++) {
+            	if ((i == 0 && !includeId) || (i == 1 && !includeTimeOfCreation)) { continue; }
             	columnNames[i] = rsmd.getColumnName(i + 1);
             }
         } catch (SQLException e) {
@@ -204,7 +213,7 @@ public class DbController {
     public static void renameField(int point, String name) throws SQLException {
         Statement statement = null;
         try {
-            String select = Arrays.stream(getFields()).map(column -> "\"" + column + "\",").toString().replaceAll(".$", "");
+            String select = Arrays.stream(getFields(true, true)).map(column -> "\"" + column + "\",").toString().replaceAll(".$", "");
             String renamedColumns = buildRenamedFields(point + 1, name);
             String renamedCreate = buildRenamedCreate(point + 1, name);
             statement = conn.createStatement();
@@ -228,7 +237,7 @@ public class DbController {
 
     private static String buildRenamedFields(int point, String name) throws SQLException {
         StringBuilder stringBuilder = new StringBuilder();
-        String[] columnsNames = getFields();
+        String[] columnsNames = getFields(true, true);
         for (int i = 0; i < columnsNames.length; i++) {
             if ((i != point) && (i != columnsNames.length - 1))
             	stringBuilder.append("\"").append(columnsNames[i]).append("\"").append(",");
@@ -244,7 +253,7 @@ public class DbController {
 
     private static String buildRenamedCreate(int point, String name) throws SQLException {
         StringBuilder stringBuilder = new StringBuilder();
-        String[] columnsNames = getFields();
+        String[] columnsNames = getFields(true, true);
         for (int i = 0; i < columnsNames.length; i++) {
             if ((i == 0) && (i != columnsNames.length - 1))
             	stringBuilder.append("\"Id\" INTEGER PRIMARY KEY NOT NULL" + ",");
@@ -264,7 +273,7 @@ public class DbController {
 
     private static String buildDeleteCreate(int point) throws SQLException {
         StringBuilder stringBuilder = new StringBuilder();
-        String[] columnsNames = getFields();
+        String[] columnsNames = getFields(true, true);
         for (int i = 0; i < columnsNames.length; i++) {
             if ((i == 0) && (columnsNames.length > 2))
             	stringBuilder.append("\"Id\" INTEGER PRIMARY KEY NOT NULL" + ",");
@@ -284,7 +293,7 @@ public class DbController {
 
     private static String buildDeleteSelect(int point) throws SQLException {
         StringBuilder stringBuilder = new StringBuilder();
-        String[] columnsNames = getFields();
+        String[] columnsNames = getFields(true, true);
         for (int i = 0; i < columnsNames.length; i++) {
             if ((i == 0) && (columnsNames.length > 2))
             	stringBuilder.append("\"" + "Id" + "\"" + ",");

@@ -59,6 +59,7 @@ import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.util.Callback;
 import sysoft.database.DbController;
+import sysoft.entity.Entry;
 
 public class Layout {
 
@@ -217,7 +218,7 @@ public class Layout {
         });
         insertMenuItem.setOnAction((ActionEvent e) -> {
             try {
-                if (DbController.getFields().length == 1)
+                if (DbController.getFields(true, true).length == 1)
                     startScreenMenuItem.fire();
                 else {
                     cleanScreen();
@@ -239,48 +240,41 @@ public class Layout {
                     topTitleText.setId("welcome");
                     b.getChildren().add(topTitleText);
                     insertGrid.add(b, 0, 0, 10, 1);
-                    try {
-                        column = 0;
-                        row = 2;
-                        for (int i = 1; i < DbController.getFields().length - 1; i++) {
-                            foo = new Label(DbController.getFields()[i] + ":");
-                            labels.add(foo);
-                            if (column == 0) {
-                                insertGrid.add(foo, column, row);
-                                column = 2;
-                            } else if (column == 2) {
-                                insertGrid.add(foo, column, row);
-                                column = 4;
-                            } else {
-                                insertGrid.add(foo, column, row);
-                                column = 0;
-                                row++;
-                            }
-                        }
-                    } catch (SQLException ex) {
-                        Logger.getLogger(SySoft.class.getName()).log(Level.SEVERE, null, ex);
+                    String[] columns = DbController.getFields(false, false);
+                    column = 0;
+                    row = 2;
+                    for (int i = 0; i < columns.length; i++) {
+                    	foo = new Label(columns[i] + ":");
+                    	labels.add(foo);
+                    	if (column == 0) {
+                    		insertGrid.add(foo, column, row);
+                    		column = 2;
+                    	} else if (column == 2) {
+                    		insertGrid.add(foo, column, row);
+                    		column = 4;
+                    	} else {
+                    		insertGrid.add(foo, column, row);
+                    		column = 0;
+                    		row++;
+                    	}
                     }
-                    try {
-                        column = 1;
-                        row = 2;
-                        for (int i = 1; i < DbController.getFields().length - 1; i++) {
-                            boo = new TextField();
-                            boo.setMaxWidth(100);
-                            textFields.add(boo);
-                            if (column == 1) {
-                                insertGrid.add(boo, column, row);
-                                column = 3;
-                            } else if (column == 3) {
-                                insertGrid.add(boo, column, row);
-                                column = 5;
-                            } else {
-                                insertGrid.add(boo, column, row);
-                                column = 1;
-                                row++;
-                            }
-                        }
-                    } catch (SQLException ex) {
-                        Logger.getLogger(SySoft.class.getName()).log(Level.SEVERE, null, ex);
+                    column = 1;
+                    row = 2;
+                    for (int i = 0; i < columns.length; i++) {
+                    	boo = new TextField();
+                    	boo.setMaxWidth(100);
+                    	textFields.add(boo);
+                    	if (column == 1) {
+                    		insertGrid.add(boo, column, row);
+                    		column = 3;
+                    	} else if (column == 3) {
+                    		insertGrid.add(boo, column, row);
+                    		column = 5;
+                    	} else {
+                    		insertGrid.add(boo, column, row);
+                    		column = 1;
+                    		row++;
+                    	}
                     }
                     for (int i = 0; i < labels.size(); i++) {
                         StringBuilder sb = new StringBuilder(labels.get(i).getText());
@@ -344,7 +338,7 @@ public class Layout {
         });
         deleteAttribute.setOnAction((ActionEvent e) -> {
             try {
-                if (DbController.getFields().length > 4) {
+                if (DbController.getFields(true, true).length > 4) {
                     int point = -1;
                     do {
                         TextInputDialog dialog = new TextInputDialog();
@@ -354,8 +348,9 @@ public class Layout {
                         Optional<String> result = dialog.showAndWait();
                         if (result.isPresent()) {
                             try {
-                                for (int i = 0; i < DbController.getFields().length; i++) {
-                                    String name = DbController.getFields()[i];
+                            	String[] columns = DbController.getFields(true, true);
+                                for (int i = 0; i < columns.length; i++) {
+                                    String name = columns[i];
                                     String name1 = result.get();
                                     if (name1.equals(name)) {
                                         point = i;
@@ -396,7 +391,7 @@ public class Layout {
             if (counter != textFields.size()) {
                 boolean insertStatus = false;
                 try {
-                	insertStatus = DbController.insert(textFields);
+                	insertStatus = DbController.insert(Entry.getNewEntry(textFields.toArray(new String[textFields.size()])));
                 } catch (SQLException ex) {
                     Logger.getLogger(SySoft.class.getName()).log(Level.SEVERE, null, ex);
                 }
@@ -473,7 +468,7 @@ public class Layout {
         refresh.setOnAction((ActionEvent e) -> showAllMenuItem.fire());
         update.setOnAction((ActionEvent e) -> {
             try {
-                if (DbController.update(textFields, id)) {
+                if (DbController.update(Entry.getNewEntry(textFields.toArray(new String[textFields.size()])), id)) {
                     textFields.forEach(textField -> textField.clear());
                     Alert alert = new Alert(AlertType.INFORMATION);
                     alert.setHeaderText(null);
@@ -499,7 +494,7 @@ public class Layout {
                 String columns[] = null;
                 StringBuilder myCodeText = new StringBuilder();
                 try {
-                    columns = DbController.getFields();
+                    columns = DbController.getFields(true, true);
                 } catch (SQLException ex) {
                     Logger.getLogger(SySoft.class.getName()).log(Level.SEVERE, null, ex);
                 }
@@ -592,8 +587,9 @@ public class Layout {
         MenuBar menuBar1 = new MenuBar();
         Menu menu1 = new Menu("Search Options");
         group1 = new ToggleGroup();
-        for (int i = 1; i < DbController.getFields().length; i++) {
-            RadioMenuItem radio = new RadioMenuItem(DbController.getFields()[i]);
+        String[] columns = DbController.getFields(false, false);
+        for (int i = 0; i < columns.length; i++) {
+            RadioMenuItem radio = new RadioMenuItem(columns[i]);
             radio.setOnAction((ActionEvent e) ->
                     radio1 = radio.getText());
             menu1.getItems().add(radio);
@@ -607,8 +603,9 @@ public class Layout {
         MenuBar menuBar2 = new MenuBar();
         Menu menu2 = new Menu("Search Options");
         group2 = new ToggleGroup();
-        for (int i = 1; i < DbController.getFields().length; i++) {
-            RadioMenuItem radio = new RadioMenuItem(DbController.getFields()[i]);
+        String[] columns = DbController.getFields(false, false);
+        for (int i = 0; i < columns.length; i++) {
+            RadioMenuItem radio = new RadioMenuItem(columns[i]);
             radio.setOnAction((ActionEvent e) ->
                     radio2 = radio.getText());
             menu2.getItems().add(radio);
