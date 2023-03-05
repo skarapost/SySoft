@@ -4,7 +4,7 @@
    http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>org.com.sysoft</groupId>
+    <groupId>sysoft</groupId>
     <artifactId>sysoft</artifactId>
     <version>1.0</version>
 
@@ -51,7 +51,7 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>org.com.sysoft.core.GuiStarter</mainClass>
+                            <mainClass>sysoft.core.GuiStarter</mainClass>
                         </manifest>
                     </archive>
                     <descriptorRefs>

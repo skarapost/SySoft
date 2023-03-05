@@ -2,6 +2,7 @@ package sysoft.database;
 
 import javafx.scene.control.TextField;
 import sysoft.core.Alerts;
+import sysoft.entity.Entry;
 
 import java.io.File;
 import java.net.URI;
@@ -10,6 +11,7 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 
 public class DbController {
@@ -25,7 +27,7 @@ public class DbController {
         return controller;
     }
 
-    public static boolean insert(List<TextField> textFields) throws SQLException {
+    public static boolean insert(Entry entry) throws SQLException {
         PreparedStatement stm = null;
         try {
         	
@@ -46,7 +48,7 @@ public class DbController {
             stringBuilder.append(")");
         	
             stm = conn.prepareStatement(stringBuilder.toString());
-            for (int i = 0; i < textFields.size(); i++) {
+            for (Map.Entry<String, String> field: entry.getListOfFields()) {
             	stm.setObject(i + 1, textFields.get(i).getText());
             }
         	stm.setObject(textFields.size() + 1, System.currentTimeMillis());
