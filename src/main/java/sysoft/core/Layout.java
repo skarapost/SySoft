@@ -60,6 +60,7 @@ import javafx.stage.Stage;
 import javafx.util.Callback;
 import sysoft.database.DbController;
 import sysoft.entity.Entry;
+import sysoft.entity.FieldList;
 
 public class Layout {
 
@@ -83,7 +84,6 @@ public class Layout {
     private Button update;
     private Button qrcode;
     private TableView<ObservableList<String>> tableview;
-    private String id;
     private MenuItem newAttribute;
     private MenuItem deleteAttribute;
     private ToggleGroup group1;
@@ -283,8 +283,7 @@ public class Layout {
                         tooltip.setText(sb.toString());
                         labels.get(i).setTooltip(tooltip);
                         int point = i;
-                        labels.get(i).setOnMouseClicked((MouseEvent t1) ->
-                        {
+                        labels.get(i).setOnMouseClicked((MouseEvent t1) -> {
                             TextInputDialog dialog = new TextInputDialog();
                             dialog.setHeaderText(null);
                             dialog.setTitle("Rename field");
@@ -292,7 +291,7 @@ public class Layout {
                             Optional<String> result = dialog.showAndWait();
                             result.ifPresent(s -> {
                                 try {
-                                	DbController.renameField(point, s);
+                                	DbController.renameField(labels.get(point).getText(), s);
                                     insertMenuItem.fire();
                                 } catch (SQLException ex) {
                                     Logger.getLogger(SySoft.class.getName()).log(Level.SEVERE, null, ex);
@@ -340,6 +339,7 @@ public class Layout {
             try {
                 if (DbController.getFields(true, true).length > 4) {
                     int point = -1;
+                    String[] columns = null;
                     do {
                         TextInputDialog dialog = new TextInputDialog();
                         dialog.setHeaderText(null);
@@ -348,7 +348,7 @@ public class Layout {
                         Optional<String> result = dialog.showAndWait();
                         if (result.isPresent()) {
                             try {
-                            	String[] columns = DbController.getFields(true, true);
+                            	columns = DbController.getFields(true, true);
                                 for (int i = 0; i < columns.length; i++) {
                                     String name = columns[i];
                                     String name1 = result.get();
@@ -365,13 +365,10 @@ public class Layout {
                         if (point == -1) {
                             Alerts.fireNoFieldForNameAlert();
                         }
+                        if (point != -1 && columns != null) {
+                        	DbController.deleteField(columns[point]);
+                        }
                     } while (point == -1);
-                    try {
-                        if (point != -1)
-                        	DbController.deleteField(point);
-                    } catch (SQLException ex) {
-                        Logger.getLogger(SySoft.class.getName()).log(Level.SEVERE, null, ex);
-                    }
                 } else {
                     Alerts.fireDefault3FieldsInTableAlert();
                 }
@@ -437,13 +434,13 @@ public class Layout {
             deleteAttribute.setDisable(true);
             if (row != null) {
                 insertMenuItem.fire();
-                for (int i = 0; i < textFields.size(); i++)
+                for (int i = 0; i < textFields.size(); i++) {
                     textFields.get(i).setText((String) row.get(i + 1));
+                }
                 topTitleText.setText("Update Record");
                 box.getChildren().remove(insert);
                 box.getChildren().add(update);
                 update.setDefaultButton(true);
-                id = (String) row.get(0);
             } else
                 Alerts.fireMissingSelectedRowAlert();
         });
@@ -456,8 +453,16 @@ public class Layout {
                     alert.setHeaderText(null);
                     alert.setContentText("Are you sure for the deletion?");
                     alert.showAndWait();
-                    if (alert.getResult() == ButtonType.OK)
-                    	DbController.delete(Integer.parseInt((String) row.get(0)));
+                    if (alert.getResult() == ButtonType.OK) {
+                    	Entry entry = new Entry(Integer.parseInt(row.get(0)), Long.parseLong(row.get(1)));
+                    	FieldList fieldList = new FieldList();
+                    	String[] columns = DbController.getFields(true, true);
+                    	for (int i = 2; i < columns.length; i++) {
+                    		fieldList.newField(columns[i], row.get(i));
+                    	}
+                    	entry.setListOfFields(fieldList);
+                    	DbController.delete(entry);
+                    }
                     refresh.fire();
                 } catch (SQLException ex) {
                     Logger.getLogger(SySoft.class.getName()).log(Level.SEVERE, null, ex);
@@ -468,7 +473,7 @@ public class Layout {
         refresh.setOnAction((ActionEvent e) -> showAllMenuItem.fire());
         update.setOnAction((ActionEvent e) -> {
             try {
-                if (DbController.update(Entry.getNewEntry(textFields.toArray(new String[textFields.size()])), id)) {
+                if (DbController.update(Entry.getNewEntry(textFields.toArray(new String[textFields.size()])))) {
                     textFields.forEach(textField -> textField.clear());
                     Alert alert = new Alert(AlertType.INFORMATION);
                     alert.setHeaderText(null);
