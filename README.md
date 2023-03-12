@@ -1,6 +1,6 @@
 # SySoft
 
-## Generic Description
+## Description
 
 SySoft is a convenient interface for storing every kind of information. The information is stored in a Sqlite provided database. The user can create, rename or delete fields. Search function is supported, as well.
 
@@ -23,3 +23,7 @@ The database should contain 4 fields that cannot be deleted. An id field which i
 7) Create a record.
 8) Search using 2 different selected fields.
 9) Show all the records.
+
+## Java
+
+Java 17 is necessary to be installed on your machine.
