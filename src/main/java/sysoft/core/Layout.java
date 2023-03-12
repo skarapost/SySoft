@@ -59,6 +59,7 @@ import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.util.Callback;
 import sysoft.database.DbController;
+import sysoft.database.DbController.Tables;
 import sysoft.entity.Entry;
 import sysoft.entity.FieldList;
 
@@ -316,7 +317,7 @@ public class Layout {
             cleanScreen();
             showAllMenuItem.setSelected(true);
             try {
-                showResults(DbController.showAll());
+                showResults(DbController.showAll(Tables.Customer));
             } catch (SQLException ex) {
                 Logger.getLogger(SySoft.class.getName()).log(Level.SEVERE, null, ex);
             }
@@ -327,9 +328,9 @@ public class Layout {
             dialog.setTitle("New field");
             dialog.setContentText("Name of field: ");
             Optional<String> result = dialog.showAndWait();
-            result.ifPresent(s -> {
+            result.ifPresent(newField -> {
                 try {
-                	DbController.newField(s);
+                	DbController.newField(newField);
                 } catch (SQLException ex) {
                     Logger.getLogger(SySoft.class.getName()).log(Level.SEVERE, null, ex);
                 }
@@ -359,8 +360,9 @@ public class Layout {
                             } catch (SQLException ex) {
                                 Logger.getLogger(SySoft.class.getName()).log(Level.SEVERE, null, ex);
                             }
-                        } else
+                        } else {
                             break;
+                        }
                         dialog.close();
                         if (point == -1) {
                             Alerts.fireNoFieldForNameAlert();
